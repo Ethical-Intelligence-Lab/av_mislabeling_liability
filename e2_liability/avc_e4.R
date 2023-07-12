@@ -33,7 +33,7 @@ pacman::p_load('ggplot2',         # plotting
                'rstatix',
                'effects'
 )
-source("process.r")
+source("./process.r")
 ## ================================================================================================================
 ##                                                  PRE-PROCESSING                 
 ## ================================================================================================================
@@ -41,7 +41,7 @@ source("process.r")
 ## read in data: 
 # set working directory to current directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-d <- read.csv('avc_e4.csv') 
+d <- read.csv('./avc_e4.csv') 
 
 ## explore data frame: 
 head(d)

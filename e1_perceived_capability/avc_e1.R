@@ -39,8 +39,8 @@ pacman::p_load('ggplot2',         # plotting
 
 ## read in data: 
 # set working directory to current directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-d <- read.csv('avc_e1.csv') 
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+d <- read.csv('./avc_e1.csv') 
 
 ## explore data frame: 
 head(d)
