@@ -11,6 +11,7 @@ options(download.file.method="libcurl")
 ## install packages
 library(ggpubr)
 library(dplyr)
+library(sjstats)
 if (!require(pacman)) {install.packages("pacman")}
 pacman::p_load('ggplot2',         # plotting
                'ggsignif',        # plotting significance bars
@@ -628,7 +629,7 @@ dev.off()
 ## ================================================================================================================
 ##                                              DATA ANALYSIS - MEDIATION                
 ## ================================================================================================================
-source('process.R')
+source('../e2_liability/process.R')
 d_merged$cond = as.factor(d_merged$cond)
 d_merged$cond = as.numeric(d_merged$cond)
 
@@ -820,22 +821,20 @@ summary(reg3)
 reg4 <- lm(liable_human ~ transparency*capability, df_comb)
 summary(reg4)
 
-
-
 stargazer(reg1, reg2, reg3, reg4)
 
 # Only transparency dummy
 reg1a <- lm(resp_soft ~ transparency, df_comb)
-summary(reg1)
+summary(reg1a)
 
 reg2a <- lm(resp_human ~ transparency, df_comb)
-summary(reg2)
+summary(reg2a)
 
 reg3a <- lm(liable_soft ~ transparency, df_comb)
-summary(reg3)
+summary(reg3a)
 
 reg4a <- lm(liable_human ~ transparency, df_comb)
-summary(reg4)
+summary(reg4a)
 
 stargazer(reg1a, reg2a, reg3a, reg4a)
 
@@ -860,15 +859,19 @@ stargazer(reg1b, reg2b, reg3b, reg4b)
 #================================================================================
 anova_rh <- aov(resp_human ~ capability * as.factor(transparency), data = df_comb)
 summary(anova_rh)
+anova_stats(anova_rh)
 
 anova_lh <- aov(liable_human ~ capability * as.factor(transparency), data = df_comb)
 summary(anova_lh)
+anova_stats(anova_lh)
 
 anova_rs <- aov(resp_soft ~ capability * as.factor(transparency), data = df_comb)
 summary(anova_rs)
+anova_stats(anova_rs)
 
 anova_ls <- aov(liable_soft ~ capability * as.factor(transparency), data = df_comb)
 summary(anova_ls)
+anova_stats(anova_ls)
 
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 
