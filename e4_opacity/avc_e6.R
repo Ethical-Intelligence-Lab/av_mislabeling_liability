@@ -681,7 +681,10 @@ write.csv(d_merged,"avc_e6_merged.csv")
 library(tidyverse)
 library(stargazer)
 
-df <- read_csv("avc_e6.csv")
+# Read full dataset
+df <- read_csv("avc_e6_full.csv")
+# Remove first two rows that were headers
+df <- df[-c(1,2),]
 
 # Perform Exclusions
 df |>
@@ -711,7 +714,7 @@ df |>
 df |>
   mutate(
     transparency = ifelse(grepl("op", cond), "no", "yes"),
-    label = ifelse(grepl("auto", cond), "auto", "co")
+    label = ifelse(grepl("auto", cond), "auto", "co"),
   ) -> df
 
 # Get data for different groups
@@ -741,6 +744,12 @@ co_ft <- df |>
 colnames(co_ft) <- std_colnames
 
 df_comb <- rbind(auto_ft, co_ft, co_op, auto_op)
+
+df_comb |>
+  mutate_at(
+    c("resp_soft", "resp_human", "liable_soft", "liable_human", "capability"),
+    as.numeric
+    ) -> df_comb
 
 #=================================================================================
 # Individual plots for different dependant vars
@@ -874,6 +883,31 @@ summary(anova_ls)
 anova_stats(anova_ls)
 
 ## ================================================================================================================
+##                                                  PROCESS 14 MEDIATION MODERATOR                 
+## ================================================================================================================
+source('../e2_liability/process.R')
+df_num <- df_comb
+
+# Convert relevant columns into numeric for PROCESS
+df_num$label <- as.numeric(ifelse(df_num$label == "auto", 1, 0))
+df_num$cond <- as.numeric(as.factor(df_num$cond))
+df_num$transparency <- as.numeric(ifelse(df_num$transparency == "yes", 1, 0))
+df_num$capable <- as.numeric(ifelse(df_num$capable == "yes", 1, 0))
+df_num$resp_soft <- as.numeric(df_num$resp_soft)
+
+# Apply PROCESS 
+process(data = df_num, y = "resp_soft", x = "label", w = "transparency",
+        m = "capability", model = 14, boot = 10000 , modelbt = 1, seed = 654321)
+
+process(data = df_num, y = "liable_soft", x = "label", w = "transparency",
+        m = "capability", model = 14, boot = 10000 , modelbt = 1, seed = 654321)
+
+process(data = df_num, y = "resp_human", x = "label", w = "transparency",
+        m = "capability", model = 14, boot = 10000 , modelbt = 1, seed = 654321)
+
+process(data = df_num, y = "liable_human", x = "label", w = "transparency",
+        m = "capability", model = 14, boot = 10000 , modelbt = 1, seed = 654321)
+
+## ================================================================================================================
 ##                                                  END OF ANALYSIS                 
 ## ================================================================================================================
-
