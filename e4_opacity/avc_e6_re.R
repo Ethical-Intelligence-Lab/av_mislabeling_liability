@@ -8,6 +8,7 @@ rm(list = ls())
 library(sjstats)
 library(tidyverse)
 library(ggpubr)
+library(ggsignif)
 source('../e2_liability/process.R')
 
 #==============================================================
@@ -213,16 +214,117 @@ d |>
   summarize( 
     mean = mean(Value),
     se = std.error(Value) 
-    ) |>
-  rename(av_label = label) -> d_plot
+    ) -> d_plot
 
-se_width <- 1
-
-ggplot(data = d_plot, aes(x=transparency, y=mean, fill=av_label, color=av_label)) +
-  geom_bar(stat="identity", position="dodge") +
-  geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = "dodge", size=.25) +
-  geom_point(aes(y=mean),position=position_dodge(width = .9), size=.75) +
-  theme_light() +
-  facet_wrap(~ DV, scales="free", nrow = 2) +
-  geom_bracket( xmin = "no", xmax="yes", y.position = 100, av_label = "...")
+plot_did <- function(df=d_plot, dv) {
   
+  d_plot <- df |>
+    filter(DV == dv)
+  
+  E_no <- round(d_plot[d_plot$transparency == "no" & d_plot$label == "auto",]$mean[1] - 
+                  d_plot[d_plot$transparency == "no" & d_plot$label == "co",]$mean[1], 3)
+  
+  E_yes <- round(d_plot[d_plot$transparency == "yes" & d_plot$label == "auto",]$mean[1] - 
+                   d_plot[d_plot$transparency == "yes" & d_plot$label == "co",]$mean[1], 3)
+  
+  DiD <- E_no - E_yes
+  
+  se_width <- 1.96
+  
+  ggplot(data = d_plot, aes(x=transparency, y=mean, fill=label, color=label)) +
+    geom_bar(stat="identity", position="dodge") +
+    geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = "dodge", size=.25) +
+    geom_point(aes(y=mean),position=position_dodge(width = .9), size=.75) +
+    theme_light() +
+    geom_signif(
+      y_position = c(100, 100, 110), xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
+      annotation = c(E_no, E_yes, DiD), tip_length = 0.1, color='black', size = .25, textsize = 2
+    ) +
+    scale_fill_grey() +
+    scale_color_grey() +
+    ggtitle(dv) +
+    ylab("response") -> p
+  
+  return(p)
+}
+
+plot_did(dv = "Human is Liable")          -> p1
+plot_did(dv = "Firm is Liable")           -> p2
+plot_did(dv = "Human is Responsible")     -> p3
+plot_did(dv = "Software is Responsible")  -> p4
+
+ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
+rm(p1, p2, p3, p4)
+
+#=================================================================================
+# MEDIATION of Perceived Capability on DV
+#=================================================================================
+d |>
+  mutate_at( c("transparency", "label"), as.factor) |>
+  mutate_at( c("transparency", "label"), as.numeric) -> d_process
+
+## NOTE
+### - transparency no ~ 1, yes ~ 2
+### - label auto ~ 1, co ~ 2
+
+# SOFTWARE RESPONSBIBILITY
+process(data = d_process, y = "resp_soft", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN RESPONSBIBILITY
+process(data = d_process, y = "resp_human", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# FIRM LIABILITY
+process(data = d_process, y = "liable_firm", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN LIABILITY
+process(data = d_process, y = "liable_human", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+#=================================================================================
+# MODERATED (transparency) MEDIATION (capability) MODEL 8
+#=================================================================================
+# SOFTWARE RESPONSBIBILITY
+process(data = d_process, y = "resp_soft", x = "label", 
+        m =c("capability"), w="transparency", model = 8, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN RESPONSBIBILITY
+process(data = d_process, y = "resp_human", x = "label", 
+        m =c("capability"), w="transparency", model = 8, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# FIRM LIABILITY
+process(data = d_process, y = "liable_firm", x = "label", 
+        m =c("capability"), w="transparency", model = 8, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN LIABILITY
+process(data = d_process, y = "liable_human", x = "label", 
+        m =c("capability"), w="transparency", model = 8, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+#=================================================================================
+# LABEL-TRANSPARENCY INTERACTION
+#=================================================================================
+anova_rh <- aov(resp_human ~ capability * as.factor(transparency), data = d)
+summary(anova_rh)
+anova_stats(anova_rh)
+
+anova_lh <- aov(liable_human ~ capability * as.factor(transparency), data = d)
+summary(anova_lh)
+anova_stats(anova_lh)
+
+anova_rs <- aov(resp_soft ~ capability * as.factor(transparency), data = d)
+summary(anova_rs)
+anova_stats(anova_rs)
+
+anova_lf <- aov(liable_firm ~ capability * as.factor(transparency), data = d)
+summary(anova_lf)
+anova_stats(anova_lf)
