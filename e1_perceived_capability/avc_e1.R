@@ -522,6 +522,56 @@ dev.off()
 ## export merged data frame
 write.csv(d_merged,"avc_e1_merged.csv")
 
+# BAR PLOTS
+d_merged |>
+  select(cond, auto, use1, use2, use3, use4, value1, value2, value3, value4) -> d_plot
+
+colnames(d_plot) <- c("Condition", "Perceived Automation", "Learn", "Control", "Understand", "Misinterpret", "Quality", "Enjoyment", "Social Standing", "Price")
+
+d_plot |>
+  gather(key = "Measure", value = "Response" , 2:10) |>
+  mutate( 
+    Condition = case_when(
+      Condition == "co" ~ "Copilot",
+      Condition == "auto" ~ "Autopilot",
+      Condition == "dless" ~ "Driverless",
+    )
+    ) |>
+  group_by(Condition, Measure) |>
+  summarize(
+    Mean = mean(Response),
+    SE = sd(Response)/sqrt(n())
+  ) -> d_plot
+
+dv <- "Perceived Automation"
+y_pos <- c(6, 6, 6.5)
+signif <- c("*","*","*")
+titulo <- "Perceived Automation"
+  
+
+plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
+  
+  d_plot <- d_plot |>
+    filter(Measure == dv)
+  
+  ggplot(data = d_plot, aes(x=Condition, y=Mean)) +
+    geom_bar(stat="identity", alpha=.75) +
+    geom_point(size=.75, color="black") +
+    geom_errorbar(aes(ymin=Mean-(SE*se_width), ymax=Mean+(SE*se_width)), position = "dodge", 
+                  size=.25, color="black", width=.75) +
+    geom_signif(
+      y_position = y_pos, xmin = c("Autopilot", "Copilot", "Autopilot"), xmax = c("Copilot", "Driverless", "Driverless"),
+      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 2
+    ) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          panel.background = element_blank(), axis.line = element_line(colour = "black"),
+          plot.title = element_text(hjust = 0.5, face = "bold")) +
+    ggtitle(titulo) -> p
+  
+  return(p)
+}
+
+
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 
 ## ================================================================================================================
