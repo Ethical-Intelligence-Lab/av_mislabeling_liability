@@ -527,6 +527,7 @@ d_merged |>
   select(cond, auto, use1, use2, use3, use4, value1, value2, value3, value4) -> d_plot
 
 colnames(d_plot) <- c("Condition", "Perceived Automation", "Learn", "Control", "Understand", "Misinterpret", "Quality", "Enjoyment", "Social Standing", "Price")
+d <- d_plot
 
 d_plot |>
   gather(key = "Measure", value = "Response" , 2:10) |>
@@ -543,11 +544,6 @@ d_plot |>
     SE = sd(Response)/sqrt(n())
   ) -> d_plot
 
-dv <- "Perceived Automation"
-y_pos <- c(6, 6, 6.5)
-signif <- c("*","*","*")
-titulo <- "Perceived Automation"
-  
 
 plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
   
@@ -566,12 +562,30 @@ plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
           plot.title = element_text(hjust = 0.5, face = "bold")) +
-    ggtitle(titulo) -> p
+    ggtitle(titulo) +
+    ylab("Response") -> p
   
   return(p)
 }
 
+plot_bar(dv = "Perceived Automation", y_pos = c(6, 6, 6.5),
+         signif = c("***", "***", "ns"), 
+         titulo = "Perceived Level of Automation") -> a1
 
+plot_bar(dv = "Misinterpret", y_pos = c(80, 80, 85),
+         signif = c("**", "**", "ns"), 
+         titulo = "Ease of Misinterpretation") -> a2
+
+ggarrange(a1,a2)
+
+t.test(d[d$Condition == "auto",]$Misinterpret, 
+       d[d$Condition == "co",]$Misinterpret )
+
+t.test(d[d$Condition == "co",]$Misinterpret, 
+       d[d$Condition == "dless",]$Misinterpret )
+
+t.test(d[d$Condition == "auto",]$Misinterpret, 
+       d[d$Condition == "dless",]$Misinterpret )
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 
 ## ================================================================================================================
