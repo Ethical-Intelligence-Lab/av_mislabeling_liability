@@ -209,7 +209,7 @@ d |>
     se = std.error(Value) 
     ) -> d_plot
 
-plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE) {
+plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(100, 100, 114)) {
   
   d_plot <- df |>
     filter(DV == dv)
@@ -225,7 +225,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE) {
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
           plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
     geom_signif(
-      y_position = c(100, 100, 112), xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
+      y_position = ypos, xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
       annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3 
     ) +
     scale_fill_grey() +
@@ -233,31 +233,31 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE) {
     ggtitle(dv) +
     xlab("Transparency") +
     ylab("Response") +
-    ylim(0, 120) -> p
+    scale_y_continuous(limits = c(0,118), breaks = c(0,20,40,60,80,100)) -> p
   
   if(!yaxis) {
     p <- p +
-      theme(axis.title.y=element_blank(),
-            axis.text.y=element_blank(),
-            axis.ticks.y=element_blank(), 
-            axis.line.y = element_line(color = "white"))
+      theme( axis.line.y = element_line(color = "white"),
+             axis.text.y = element_blank(),
+             axis.ticks.y = element_blank())
   }
   
   return(p)
 }
 
 plot_did(dv = "Human Driver Liability", signif = c("*", "ns", "*")) -> p1
-plot_did(dv = "Firm Liability", signif = c("*", "ns", "*"), yaxis=F)  -> p2
+plot_did(dv = "Firm Liability", signif = c("*", "ns", "*"), yaxis=F, ypos = c(60,60,74))  -> p2
 plot_did(dv = "Human Driver Responsibility", signif = c("*", "ns", "*"))  -> p3
-plot_did(dv = "AV Software Responsibility", signif = c("+", "ns", "ns"), yaxis=F) -> p4
+plot_did(dv = "AV Software Responsibility", signif = c("+", "ns", "ns"), yaxis=F, ypos = c(60,60,74)) -> p4
 
 ggarrange(p1 + rremove("ylab") + rremove("xlab"),
           p2 + rremove("ylab") + rremove("xlab"), 
           p3 + rremove("ylab") + rremove("xlab"), 
           p4 + rremove("ylab") + rremove("xlab"),
-          ncol = 2, nrow = 2, common.legend = TRUE, legend = "right") -> figure
+          ncol = 2, nrow = 2, common.legend = TRUE) |>
+          annotate_figure( left = textGrob("Mean Rating", rot = 90, vjust = 1, gp = gpar(cex = .8)),
+                           bottom = textGrob("Transparency Condition", gp = gpar(cex = .8)))
 
-annotate_figure(figure, left = textGrob("Response", rot = 90, vjust = 1, gp = gpar(cex = .8)))
 rm(p1, p2, p3, p4)
 
 #=================================================================================
@@ -342,6 +342,7 @@ anova_stats(anova_lf)
 #=================================================================================
 # PLOTS CAPABLE (binarized capability) - TRANSPARENCY
 #=================================================================================
+d$capable <- ifelse(d$capability < 4, "no", "yes")
 
 d |>
   gather(key = "DV", value = "Value", 

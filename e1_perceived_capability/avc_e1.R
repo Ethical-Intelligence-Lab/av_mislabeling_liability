@@ -222,6 +222,10 @@ d2 <- subset(d_merged, d_merged$cond != 'co')
 t.test(auto ~ cond, data = d2)
 d3 <- subset(d_merged, d_merged$cond != 'auto')
 t.test(auto ~ cond, data = d3)
+
+sd(d_merged[d_merged$cond == "dless",]$auto)
+sd(d_merged[d_merged$cond == "auto",]$auto)
+sd(d_merged[d_merged$cond == "co",]$auto)
 ## ================================================================================================================
 ##                                              PLOTTING MAIN FIGURES                 
 ## ================================================================================================================
@@ -550,6 +554,8 @@ plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
   d_plot <- d_plot |>
     filter(Measure == dv)
   
+  se_width <- 1.96
+  
   ggplot(data = d_plot, aes(x=Condition, y=Mean)) +
     geom_bar(stat="identity", alpha=.75) +
     geom_point(size=.75, color="black") +
@@ -557,7 +563,7 @@ plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
                   size=.25, color="black", width=.75) +
     geom_signif(
       y_position = y_pos, xmin = c("Autopilot", "Copilot", "Autopilot"), xmax = c("Copilot", "Driverless", "Driverless"),
-      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 2
+      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3
     ) + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
