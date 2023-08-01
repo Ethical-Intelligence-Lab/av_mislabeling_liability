@@ -195,6 +195,21 @@ t.test(`human responsibility` ~ cond, data = d_merged)
 t.test(`firm liability` ~ cond, data = d_merged)
 t.test(`human liability` ~ cond, data = d_merged)
  
+## Standard Deviation
+sd(d_merged[d_merged$cond == 1,]$automation)
+sd(d_merged[d_merged$cond == 2,]$automation)
+
+sd(d_merged[d_merged$cond == 1,]$`software responsibility`)
+sd(d_merged[d_merged$cond == 2,]$`software responsibility`)
+
+sd(d_merged[d_merged$cond == 1,]$`human responsibility`)
+sd(d_merged[d_merged$cond == 2,]$`human responsibility`)
+
+sd(d_merged[d_merged$cond == 1,]$`firm liability`)
+sd(d_merged[d_merged$cond == 2,]$`firm liability`)
+
+sd(d_merged[d_merged$cond == 1,]$`human liability`)
+sd(d_merged[d_merged$cond == 2,]$`human liability`)
 
 ## ================================================================================================================
 ##                                              PLOTTING MAIN FIGURES                
