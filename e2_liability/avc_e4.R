@@ -211,6 +211,9 @@ sd(d_merged[d_merged$cond == 2,]$`firm liability`)
 sd(d_merged[d_merged$cond == 1,]$`human liability`)
 sd(d_merged[d_merged$cond == 2,]$`human liability`)
 
+# Correlation of firm/software resp-liab and human resp-liab
+cor(d_merged$`software responsibility`, d_merged$`firm liability`)
+cor(d_merged$`human responsibility`, d_merged$`human liability`)
 ## ================================================================================================================
 ##                                              PLOTTING MAIN FIGURES                
 ## ================================================================================================================
@@ -253,7 +256,7 @@ p2 <- p2 + theme(text = element_text(size=18),panel.grid.major = element_blank()
   xlab ("") + ylab ("") +
   theme_classic() +
   theme(axis.text.x = element_text(size=14)) +
-  theme(axis.text.y = element_text(size=14)) +
+  theme(ax.is.text.y = element_text(size=14)) +
   theme(plot.title = element_text(size=16, hjust=0.5, face = "bold")) +
   geom_violin(width=0.9, alpha=0.38, size=0.75) +  
   geom_sina(alpha=0.6, size=0.95, color = "#999999") +

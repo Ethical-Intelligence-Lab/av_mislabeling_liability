@@ -223,9 +223,15 @@ t.test(auto ~ cond, data = d2)
 d3 <- subset(d_merged, d_merged$cond != 'auto')
 t.test(auto ~ cond, data = d3)
 
+# Standard Deviation
 sd(d_merged[d_merged$cond == "dless",]$auto)
 sd(d_merged[d_merged$cond == "auto",]$auto)
 sd(d_merged[d_merged$cond == "co",]$auto)
+
+# Cohen's D
+cohen.d(d_merged[d_merged$cond == "dless",]$auto, d_merged[d_merged$cond == "auto",]$auto)
+cohen.d(d_merged[d_merged$cond == "dless",]$auto, d_merged[d_merged$cond == "co",]$auto)
+cohen.d(d_merged[d_merged$cond == "co",]$auto, d_merged[d_merged$cond == "auto",]$auto)
 ## ================================================================================================================
 ##                                              PLOTTING MAIN FIGURES                 
 ## ================================================================================================================
@@ -556,27 +562,29 @@ plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
   
   se_width <- 1.96
   
-  ggplot(data = d_plot, aes(x=Condition, y=Mean)) +
+  ggplot(data = d_plot, aes(x=factor(Condition, level = c("Copilot", "Autopilot", "Driverless")), y=Mean)) +
     geom_bar(stat="identity", alpha=.75) +
     geom_point(size=.75, color="black") +
     geom_errorbar(aes(ymin=Mean-(SE*se_width), ymax=Mean+(SE*se_width)), position = "dodge", 
                   size=.25, color="black", width=.75) +
     geom_signif(
-      y_position = y_pos, xmin = c("Autopilot", "Copilot", "Autopilot"), xmax = c("Copilot", "Driverless", "Driverless"),
-      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3
+      y_position = y_pos, xmin = c("Copilot", "Autopilot", "Driverless"), xmax = c("Autopilot", "Driverless", "Copilot"),
+      annotation = signif, tip_length = 0.1, color='black', size = .5, textsize = 3.5
     ) + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
           plot.title = element_text(hjust = 0.5, face = "bold")) +
-    ggtitle(titulo) +
-    ylab("Response") -> p
+    ylab("Perceived Level of Automation") +
+    xlab("Marketing Label") -> p
   
   return(p)
 }
 
-plot_bar(dv = "Perceived Automation", y_pos = c(6, 6, 6.5),
-         signif = c("***", "***", "ns"), 
+plot_bar(dv = "Perceived Automation", y_pos = c(6, 6.75, 7.5),
+         signif = c("***", "ns", "***"), 
          titulo = "Perceived Level of Automation") -> a1
+
+a1
 
 plot_bar(dv = "Misinterpret", y_pos = c(80, 80, 85),
          signif = c("**", "**", "ns"), 
