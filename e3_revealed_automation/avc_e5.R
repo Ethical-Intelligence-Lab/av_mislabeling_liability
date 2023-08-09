@@ -11,6 +11,9 @@ options(download.file.method="libcurl")
 ## install packages
 library(ggpubr)
 library(dplyr)
+library(sjstats)
+library(ggpubr)
+library(grid)
 if (!require(pacman)) {install.packages("pacman")}
 pacman::p_load('ggplot2',         # plotting
                'ggsignif',        # plotting significance bars
@@ -670,3 +673,81 @@ process(data = d_merged, y = "human_liability", x = "cond",
 process(data = d_merged, y = "human_liability", x = "cond", 
         m =c("automation"), w = "ethics", model = 8, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+#=================================================================================
+# PLOTS LABEL-DISCLOSURE
+#=================================================================================
+cronbach.alpha(d_subset[, c("firm_responsibility","firm_liability")])
+cronbach.alpha(d_subset[, c("human_responsibility","human_liability")])
+
+std.error <- function(x) sd(x)/sqrt(length(x))
+
+d_subset |>
+  gather(key = "DV", value = "Value",
+         firm_responsibility, human_responsibility,
+         firm_liability, human_liability) |>
+  mutate(
+    DV = case_when( DV == "human_liability" ~ "Human Driver Liability",
+                    DV == "firm_liability" ~ "Firm Liability",
+                    DV == "human_responsibility" ~ "Human Driver Responsibility",
+                    DV == "firm_responsibility" ~ "AV Software Responsibility",),
+    `Marketing Label` = ifelse(grepl("auto", cond), "Autopilot", "Copilot"),
+    Disclosure = ifelse(grepl("ft", cond), "Disclosed", "Not Disclosed")
+  ) |>
+  group_by(`Marketing Label`, Disclosure, DV) |>
+  summarize( 
+    mean = mean(Value),
+    se = std.error(Value) 
+  ) -> d_plot
+
+plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(100, 100, 114)) {
+  
+  d_plot <- df |>
+    filter(DV == dv)
+  
+  se_width <- 1.96
+  
+  ggplot(data = d_plot, aes(x=Disclosure, y=mean, fill=`Marketing Label`)) +
+    geom_bar(stat="identity", position="dodge", alpha=.75) +
+    geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = position_dodge(width=.9), 
+                  size=.25, color="black", width=.5) +
+    geom_point(aes(y=mean),position=position_dodge(width = .9), size=.75, color="black") +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          panel.background = element_blank(), axis.line = element_line(colour = "black"),
+          plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
+    geom_signif(
+      y_position = ypos, xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
+      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3 
+    ) +
+    scale_fill_grey() +
+    scale_color_grey() +
+    ggtitle(dv) +
+    xlab("Disclosure") +
+    ylab("Response") +
+    scale_y_continuous(limits = c(0,118), breaks = c(0,20,40,60,80,100)) -> p
+  
+  if(!yaxis) {
+    p <- p +
+      theme( axis.line.y = element_line(color = "white"),
+             axis.text.y = element_blank(),
+             axis.ticks.y = element_blank())
+  }
+  
+  return(p)
+}
+
+plot_did(dv = "Human Driver Liability", signif = c("ns", "ns", "ns")) -> p1
+plot_did(dv = "Firm Liability", signif = c("*", "ns", "ns"), yaxis=F, ypos = c(75,75,90))  -> p2
+plot_did(dv = "Human Driver Responsibility", signif = c("ns", "ns", "ns"))  -> p3
+plot_did(dv = "AV Software Responsibility", signif = c("+", "**", "ns"), yaxis=F, ypos = c(75,75,90)) -> p4
+
+ggarrange(p1 + rremove("ylab") + rremove("xlab"),
+          p2 + rremove("ylab") + rremove("xlab"), 
+          p3 + rremove("ylab") + rremove("xlab"), 
+          p4 + rremove("ylab") + rremove("xlab"),
+          ncol = 2, nrow = 2, common.legend = TRUE) |>
+  annotate_figure( left = textGrob("Mean Rating", rot = 90, vjust = 1, gp = gpar(cex = .8)),
+                   bottom = textGrob("Disclosure of True Level of Automation", gp = gpar(cex = .8)))
+
+rm(p1, p2, p3, p4)
+

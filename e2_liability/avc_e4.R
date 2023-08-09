@@ -11,6 +11,7 @@ options(download.file.method="libcurl")
 ## install packages
 library(ggpubr)
 library(dplyr)
+library(grid)
 if (!require(pacman)) {install.packages("pacman")}
 pacman::p_load('ggplot2',         # plotting
                'ggsignif',        # plotting significance bars
@@ -379,6 +380,77 @@ process(data = d_merged, y = "human liability", x = "cond",
 
 
 ## ================================================================================================================
+
+## ================================================================================================================
+##                                            VIZ - BARPLOTS                
+## ================================================================================================================
+
+d_merged |>
+  select(cond, automation, `software responsibility`, `firm liability`, `human responsibility`, `human liability`) |>
+  mutate(
+    `Marketing Label` = ifelse(cond == "auto", "Autopilot", "Copilot"),
+    `Firm` = (`software responsibility` + `firm liability`) / 2,
+    Human = (`human responsibility` + `human liability`) / 2
+  ) |>
+  select(`Marketing Label`, Firm, Human) -> d_plot
+
+t.test(Firm ~ `Marketing Label`, d_plot)
+t.test(Human ~ `Marketing Label`, d_plot)
+
+summary(lm(Firm ~ `Marketing Label`, d_plot))
+summary(lm(Human ~ `Marketing Label`, d_plot))
+
+d_plot |>
+  group_by(`Marketing Label`) |>
+  summarize(
+    avg_F = mean(Firm),
+    avg_H = mean(Human),
+    se_F = sd(Firm)/sqrt(n()),
+    se_H = sd(Human)/sqrt(n())
+  ) -> d_plot
+
+se_width <- 1.96
+
+ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Copilot")), y=avg_F)) +
+  geom_bar(stat="identity", alpha=.75) +
+  geom_point(size=.75, color="black") +
+  geom_errorbar(aes(ymin=avg_F-(se_F*se_width), ymax=avg_F+(se_F*se_width)), position = "dodge", 
+                size=.25, color="black", width=.75) +
+  geom_signif(
+    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
+  ) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
+  ylab("Mean Ratings") +
+  xlab("") +
+  ggtitle("Firm Liability") -> p1
+
+p1
+
+ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Copilot")), y=avg_H)) +
+  geom_bar(stat="identity", alpha=.75) +
+  geom_point(size=.75, color="black") +
+  geom_errorbar(aes(ymin=avg_H-(se_H*se_width), ymax=avg_H+(se_H*se_width)), position = "dodge", 
+                size=.25, color="black", width=.75) +
+  geom_signif(
+    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    annotation = c("*"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
+  ) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, face = "bold", size=10),
+        axis.line.y = element_blank(), axis.ticks.y = element_blank(),
+        axis.text.y = element_blank()) +
+  ylab("") +
+  xlab("") +
+  ggtitle("Human Liability") -> p2
+
+p2
+
+ggarrange(p1,p2) |>
+  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = .8)))
 
 ## export merged data frame
 write.csv(d_merged,"avc_e4_merged.csv")

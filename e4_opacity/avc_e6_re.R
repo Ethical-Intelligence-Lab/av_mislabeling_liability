@@ -381,7 +381,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*")) {
           plot.title = element_text(hjust = 0.5, face = "bold")) +
     geom_signif(
       y_position = c(100, 100, 110), xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
-      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 2
+      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3
     ) +
     scale_fill_grey() +
     scale_color_grey() +
@@ -423,3 +423,4 @@ process(data = d_process, y = "liable_firm", x = "label",
 process(data = d_process, y = "liable_human", x = "label", 
         m =c("capability"), w="transparency", model = 15, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
