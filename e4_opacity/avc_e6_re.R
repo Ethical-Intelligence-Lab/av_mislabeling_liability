@@ -35,7 +35,12 @@ df$cond[df$cond == "FL_54"] <- "co_ft"
 df |>
   filter(
     att_1 == 2,
-    att_2 == 2,
+    att_2 == 2 ) -> df
+
+recruited_participants <- dim(df)[1]
+
+df |>
+  filter(
     comp_1 == 2,
     comp_2 == 4,
     comp_3 == 1
@@ -47,6 +52,10 @@ df |>
             cond == 'auto_ft' & comp_4 == 3 |
             cond == 'co_op' & comp_4 == 2   | 
             cond == 'co_ft' & comp_4 == 3     )) -> df
+
+final_n <- dim(df)[1]
+
+excluded <- recruited_participants - final_n
 
 # Identify transparency and labels
 df |>
