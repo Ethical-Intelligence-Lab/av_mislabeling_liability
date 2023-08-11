@@ -407,6 +407,10 @@ p2 <- p2 + theme(text = element_text(size=18),panel.grid.major = element_blank()
                geom="errorbar", width = 0.2)
 p2
 
+d_merged |>
+  group_by(cond) |>
+  summarise( mean_firm = mean(`firm_responsibility`))
+
 ##-----------------------------------------------------------------------------------------------------------------
 p2_1 <- ggplot(d_merged, aes(x = factor(label), y = firm_responsibility, fill = factor(transparency)), color = factor(transparency_conds)) +
   theme_bw() +
@@ -556,6 +560,8 @@ p4_1 <- p4_1 +
                position = position_dodge(width = 0.9),
                geom = "errorbar", width = 0.2)
 p4_1
+
+ggarrange(p2_1, p4_1, common.legend = T)
 
 ##(5) Human Liability
 
@@ -716,15 +722,16 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
           plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
     geom_signif(
-      y_position = ypos, xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
-      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3 
+      y_position = c(50, 85, 125, 95, 75, 105, 115), xmin = c(0.8, 1.2, 1.0, 0.8, 1.8, 1.2, 0.8), 
+      xmax = c(1.2, 1.8, 2.0, 1.8, 2.2, 2.2, 2.2), annotation = signif, tip_length = 0.07, 
+      color='black', size = .25, textsize = 3
     ) +
     scale_fill_grey() +
     scale_color_grey() +
     ggtitle(dv) +
     xlab("Disclosure") +
     ylab("Response") +
-    scale_y_continuous(limits = c(0,118), breaks = c(0,20,40,60,80,100)) -> p
+    scale_y_continuous(limits = c(0,125), breaks = c(0,20,40,60,80,100)) -> p
   
   if(!yaxis) {
     p <- p +
@@ -736,10 +743,28 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
+plot_did(dv = "AV Software Responsibility", signif = c("+", "***", "ns", "***", "**", "***", "***"), ypos = c(75,75,90), yaxis=F) -> p4
+p4
+
+cond1 <- "auto_ft"
+cond2 <- "co_nt"
+t.test(d_merged[d_merged == cond1,]$firm_responsibility,
+       d_merged[d_merged == cond2,]$firm_responsibility)
+
+plot_did(dv = "Firm Liability", signif = c("*", "***", "ns", "***", "ns", "***", "***"), ypos = c(75,75,90)) -> p3
+p3
+
+cond1 <- "co_nt"
+cond2 <- "auto_ft"
+t.test(d_merged[d_merged == cond1,]$firm_liability,
+       d_merged[d_merged == cond2,]$firm_liability)
+
+ggarrange(p3,p4, common.legend = T)
+
 plot_did(dv = "Human Driver Liability", signif = c("ns", "ns", "ns")) -> p1
-plot_did(dv = "Firm Liability", signif = c("*", "ns", "ns"), yaxis=F, ypos = c(75,75,90))  -> p2
+plot_did(dv = "Firm Liability", signif = c("**", "ns", "ns"), yaxis=F, ypos = c(75,75,90))  -> p2
 plot_did(dv = "Human Driver Responsibility", signif = c("ns", "ns", "ns"))  -> p3
-plot_did(dv = "AV Software Responsibility", signif = c("+", "**", "ns"), yaxis=F, ypos = c(75,75,90)) -> p4
+
 
 ggarrange(p1 + rremove("ylab") + rremove("xlab"),
           p2 + rremove("ylab") + rremove("xlab"), 

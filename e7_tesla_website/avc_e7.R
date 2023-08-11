@@ -113,6 +113,8 @@ kable(round(prop.table(tabulate, margin = 1),3), format = "latex", booktabs=T)
 found_auto_level <- df[df$found,]$auto_level
 notfound_auto_level <- df[!df$found,]$auto_level
 
+sd(found_auto_level)
+sd(notfound_auto_level)
 t.test(found_auto_level, notfound_auto_level)
 
 ggplot(data = df, aes(found, auto_level)) +
@@ -125,6 +127,8 @@ rm(found_auto_level, notfound_auto_level)
 
 # Difficulty == 50? 
 difficulty <- df[!is.na(df$difficulty),]$difficulty 
+
+sd(difficulty)
 t.test(difficulty, mu = 50)
 
 #==============================================================
