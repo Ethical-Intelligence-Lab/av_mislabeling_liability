@@ -392,7 +392,7 @@ process(data = d_merged, y = "human liability", x = "cond",
 d_merged |>
   select(cond, automation, `software responsibility`, `firm liability`, `human responsibility`, `human liability`) |>
   mutate(
-    `Marketing Label` = ifelse(cond == "auto", "Autopilot", "Copilot"),
+    `Marketing Label` = ifelse(cond == 1, "Autopilot", "Copilot"),
     `Firm` = (`software responsibility` + `firm liability`) / 2,
     Human = (`human responsibility` + `human liability`) / 2
   ) |>
