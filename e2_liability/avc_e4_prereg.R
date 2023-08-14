@@ -12,6 +12,7 @@ options(download.file.method="libcurl")
 library(ggpubr)
 library(dplyr)
 library(grid)
+library(tidyverse)
 if (!require(pacman)) {install.packages("pacman")}
 pacman::p_load('ggplot2',         # plotting
                'ggsignif',        # plotting significance bars
@@ -42,17 +43,14 @@ source("./process.r")
 ## read in data: 
 # set working directory to current directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-d <- read.csv('./avc_e4.csv') 
+d <- read.csv('./AV_Culpability_E4_Study2.csv') 
+d <- d[-c(1,2),]
 
-## explore data frame: 
-head(d)
-str(d)
-dim(d) # dimensions of data frame by row [1] and column [2]
-colnames(d) # all column names
-summary(d)
+d |>
+  mutate_all(type.convert) -> d
 
-## rename variables:
-names(d)[names(d) == 'FL_12_DO'] <- 'cond'
+
+## rename variables
 names(d)[names(d) == 'resp_human1_10'] <- 'auto_resp_human'
 names(d)[names(d) == 'resp_software1_10'] <- 'auto_resp_software'
 names(d)[names(d) == 'resp_human2_10'] <- 'co_resp_human'
@@ -63,8 +61,10 @@ names(d)[names(d) == 'liab_human2_1'] <- 'co_liab_human'
 names(d)[names(d) == 'liab_firm2_1'] <- 'co_liab_firm'
 
 ## change condition entries
-d$cond[d$cond == "FL_35"] <- "auto"
-d$cond[d$cond == "FL_36"] <- "co"
+d |>
+  mutate(
+    cond = ifelse(is.na(auto_1), "co", "auto"),
+  ) -> d
 
 ## subjects randomized:
 table(d$cond)
@@ -197,24 +197,28 @@ t.test(`firm liability` ~ cond, data = d_merged)
 t.test(`human liability` ~ cond, data = d_merged)
 
 ## Standard Deviation
-sd(d_merged[d_merged$cond == 1,]$automation)
-sd(d_merged[d_merged$cond == 2,]$automation)
+sd(d_merged[d_merged$cond == "auto",]$automation)
+sd(d_merged[d_merged$cond == "co",]$automation)
 
-sd(d_merged[d_merged$cond == 1,]$`software responsibility`)
-sd(d_merged[d_merged$cond == 2,]$`software responsibility`)
+sd(d_merged[d_merged$cond == "auto",]$`software responsibility`)
+sd(d_merged[d_merged$cond == "co",]$`software responsibility`)
 
-sd(d_merged[d_merged$cond == 1,]$`human responsibility`)
-sd(d_merged[d_merged$cond == 2,]$`human responsibility`)
+sd(d_merged[d_merged$cond == "auto",]$`human responsibility`)
+sd(d_merged[d_merged$cond == "co",]$`human responsibility`)
 
-sd(d_merged[d_merged$cond == 1,]$`firm liability`)
-sd(d_merged[d_merged$cond == 2,]$`firm liability`)
+sd(d_merged[d_merged$cond == "auto",]$`firm liability`)
+sd(d_merged[d_merged$cond == "co",]$`firm liability`)
 
-sd(d_merged[d_merged$cond == 1,]$`human liability`)
-sd(d_merged[d_merged$cond == 2,]$`human liability`)
+sd(d_merged[d_merged$cond == "auto",]$`human liability`)
+sd(d_merged[d_merged$cond == "co",]$`human liability`)
 
 # Correlation of firm/software resp-liab and human resp-liab
 cor(d_merged$`software responsibility`, d_merged$`firm liability`)
 cor(d_merged$`human responsibility`, d_merged$`human liability`)
+
+cronbach.alpha(d_merged[,c("software responsibility", "firm liability")])
+cronbach.alpha(d_merged[,c("human responsibility", "human liability")])
+
 ## ================================================================================================================
 ##                                              PLOTTING MAIN FIGURES                
 ## ================================================================================================================
@@ -417,8 +421,8 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
   geom_errorbar(aes(ymin=avg_F-(se_F*se_width), ymax=avg_F+(se_F*se_width)), position = "dodge", 
                 size=.25, color="black", width=.75) +
   geom_signif(
-    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
-    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
+    y_position = c(75), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    annotation = c("ns"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
@@ -435,8 +439,8 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
   geom_errorbar(aes(ymin=avg_H-(se_H*se_width), ymax=avg_H+(se_H*se_width)), position = "dodge", 
                 size=.25, color="black", width=.75) +
   geom_signif(
-    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
-    annotation = c("*"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
+    y_position = c(85), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    annotation = c("ns"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
@@ -458,3 +462,4 @@ write.csv(d_merged,"avc_e4_merged.csv")
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 
 ## ================================================================================================================
+
