@@ -241,6 +241,14 @@ d_merged %>%
   group_by(cond) %>%
   summarise(across(automation:human_liability, mean, na.rm= TRUE))
 
+cronbach.alpha(d_subset[, c("firm_responsibility","firm_liability")])
+cronbach.alpha(d_subset[, c("human_responsibility","human_liability")])
+d_merged |>
+  mutate(
+    firm = (`firm_responsibility` + `firm_liability`) / 2,
+    human = (`human_responsibility` + `human_liability`) / 2
+  ) -> d_merged
+
 ## (2) T-TESTS
 t.test(firm_liability ~ transparency, data = d_merged)
 pairwise_t_test(d_merged, automation ~ cond)
@@ -248,6 +256,8 @@ pairwise_t_test(d_merged, firm_responsibility ~ cond)
 pairwise_t_test(d_merged, human_responsibility ~ cond)
 pairwise_t_test(d_merged, firm_liability ~ cond)
 pairwise_t_test(d_merged, human_liability ~ cond)
+pairwise_t_test(d_merged, firm ~ cond)
+pairwise_t_test(d_merged, human ~ cond)
 
 ### T-test for automation by label by transparency
 t1 <- t.test(d_merged$automation[d_merged$transparency == 'yes'& d_merged$label == 'auto'],
@@ -291,6 +301,22 @@ t9
 t10 <- t.test(d_merged$human_liability[d_merged$transparency == 'no'& d_merged$label == 'auto'],
              d_merged$human_liability[d_merged$transparency == 'no'& d_merged$label == 'co'], paired = FALSE)
 t10
+
+### T-test for human combined
+t11 <- t.test(d_merged$human[d_merged$transparency == 'yes'& d_merged$label == 'auto'],
+             d_merged$human[d_merged$transparency == 'yes'& d_merged$label == 'co'], paired = FALSE)
+t11
+t12 <- t.test(d_merged$human[d_merged$transparency == 'no'& d_merged$label == 'auto'],
+              d_merged$human[d_merged$transparency == 'no'& d_merged$label == 'co'], paired = FALSE)
+t12
+
+### T-test for firm combined
+t13 <- t.test(d_merged$firm[d_merged$transparency == 'yes'& d_merged$label == 'auto'],
+              d_merged$firm[d_merged$transparency == 'yes'& d_merged$label == 'co'], paired = FALSE)
+t13
+t14 <- t.test(d_merged$firm[d_merged$transparency == 'no'& d_merged$label == 'auto'],
+              d_merged$firm[d_merged$transparency == 'no'& d_merged$label == 'co'], paired = FALSE)
+t14
 
 ## (3) ANOVA
 
@@ -645,8 +671,12 @@ dev.off()
 ##                                              DATA ANALYSIS - MEDIATION                
 ## ================================================================================================================
 source('process.R')
+
 d_merged$cond = as.factor(d_merged$cond)
 d_merged$cond = as.numeric(d_merged$cond)
+
+
+
 
 ##(1) SOFTWARE RESPONSBIBILITY
 
@@ -672,6 +702,18 @@ process(data = d_merged, y = "human_liability", x = "cond",
         m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
+##(1) HUMAN COMBINED
+
+process(data = d_merged, y = "human", x = "cond", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+##(1) FIRM COMBINED
+
+process(data = d_merged, y = "firm", x = "cond", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
 ## ================================================================================================================
 ##                                        DATA ANALYSIS - MODERATED MEDIATION                
 ## ================================================================================================================
@@ -683,8 +725,6 @@ process(data = d_merged, y = "human_liability", x = "cond",
 #=================================================================================
 # PLOTS LABEL-DISCLOSURE
 #=================================================================================
-cronbach.alpha(d_subset[, c("firm_responsibility","firm_liability")])
-cronbach.alpha(d_subset[, c("human_responsibility","human_liability")])
 
 std.error <- function(x) sd(x)/sqrt(length(x))
 

@@ -397,6 +397,7 @@ d_merged |>
 
 t.test(Firm ~ `Marketing Label`, d_plot)
 t.test(Human ~ `Marketing Label`, d_plot)
+t.test(automation ~ `Marketing Label`, d_plot)
 
 summary(lm(Firm ~ `Marketing Label`, d_plot))
 summary(lm(Human ~ `Marketing Label`, d_plot))
