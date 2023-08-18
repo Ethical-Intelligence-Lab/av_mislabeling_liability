@@ -346,6 +346,12 @@ dev.off()
 ## ================================================================================================================
 d_merged$cond <- as.numeric(t)
 
+d_merged |>
+  mutate(
+    firm = (`software responsibility` + `firm liability`) / 2,
+    human = (`human responsibility` + `human liability`) / 2
+  ) -> d_merged
+
 ## PARALLEL MEDIATION:
 process(data = d_merged, y = "software responsibility", x = "cond", 
         m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
@@ -363,6 +369,13 @@ process(data = d_merged, y = "human liability", x = "cond",
         m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
+process(data = d_merged, y = "human", x = "cond", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+process(data = d_merged, y = "firm", x = "cond", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## ================================================================================================================
 ## ================================================================================================================
@@ -370,6 +383,8 @@ process(data = d_merged, y = "human liability", x = "cond",
 ## ================================================================================================================
 ##                                            VIZ - BARPLOTS                
 ## ================================================================================================================
+cronbach.alpha(d_merged[,c("software responsibility", "firm liability")])
+cronbach.alpha(d_merged[,c("human responsibility", "human liability")])
 
 d_merged |>
   select(cond, automation, `software responsibility`, `firm liability`, `human responsibility`, `human liability`) |>
