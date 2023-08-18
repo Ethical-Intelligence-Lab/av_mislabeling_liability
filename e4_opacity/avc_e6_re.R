@@ -100,6 +100,15 @@ d |>
     as.numeric
   ) -> d
 
+cronbach.alpha(d[,c("resp_human", "liable_human")])
+cronbach.alpha(d[,c("resp_soft", "liable_firm")])
+
+d |>
+  mutate(
+    human = (resp_human + liable_human)/2,
+    firm = (resp_soft + liable_firm)/2
+  ) -> d
+
 #=================================================================================
 # PARTICIPANT CHARACTERISTICS
 #=================================================================================
@@ -189,6 +198,34 @@ hl_t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$liable_human,
 hl_t2
 
 rm(hl_anova, hl_t1, hl_t2)
+
+## HUMAN COMBINED
+### ANOVA
+h_anova <- aov(human ~ as.factor(label) * as.factor(transparency), data = d)
+summary(h_anova)
+anova_stats(h_anova)
+
+### t-tests
+h_t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$human,
+                d[d$transparency == 'yes'& d$label == 'co',]$human, paired = FALSE)
+h_t1
+h_t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$human,
+                d[d$transparency == 'no' & d$label == 'co',]$human, paired = FALSE)
+h_t2
+
+## FIRM COMBINED
+### ANOVA
+f_anova <- aov(firm ~ as.factor(label) * as.factor(transparency), data = d)
+summary(f_anova)
+anova_stats(f_anova)
+
+### t-tests
+f_t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
+               d[d$transparency == 'yes'& d$label == 'co',]$firm, paired = FALSE)
+f_t1
+f_t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$firm,
+               d[d$transparency == 'no' & d$label == 'co',]$firm, paired = FALSE)
+f_t2
 
 #=================================================================================
 # PLOTS LABEL-TRANSPARENCY
@@ -300,6 +337,16 @@ process(data = d_process, y = "liable_human", x = "label",
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
+# FIRM COMBINED
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN COMBINED
+process(data = d_process, y = "human", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
 #=================================================================================
 # MODERATED (transparency) MEDIATION (capability) MODEL 5
 #=================================================================================
@@ -320,6 +367,16 @@ process(data = d_process, y = "liable_firm", x = "label",
 
 # HUMAN LIABILITY
 process(data = d_process, y = "liable_human", x = "label", 
+        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# FIRM COMBINED
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN COMBINED
+process(data = d_process, y = "human", x = "label", 
         m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
@@ -346,7 +403,15 @@ anova_lf <- aov(liable_firm ~ capability * as.factor(transparency), data = d)
 summary(anova_lf)
 anova_stats(anova_lf)
 
+# FIRM COMBINED
+anova_rs <- aov(firm ~ capability * as.factor(transparency), data = d)
+summary(anova_rs)
+anova_stats(anova_rs)
 
+# HUMAN COMBINED
+anova_lf <- aov(human ~ capability * as.factor(transparency), data = d)
+summary(anova_lf)
+anova_stats(anova_lf)
 
 #=================================================================================
 # PLOTS CAPABLE (binarized capability) - TRANSPARENCY
@@ -430,6 +495,16 @@ process(data = d_process, y = "liable_firm", x = "label",
 
 # HUMAN LIABILITY
 process(data = d_process, y = "liable_human", x = "label", 
+        m =c("capability"), w="transparency", model = 15, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# FIRM COMBINED
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), w="transparency", model = 15, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN COMBINED
+process(data = d_process, y = "human", x = "label", 
         m =c("capability"), w="transparency", model = 15, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
