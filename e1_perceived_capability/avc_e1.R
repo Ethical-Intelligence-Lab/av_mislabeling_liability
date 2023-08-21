@@ -551,9 +551,18 @@ d_plot |>
   group_by(Condition, Measure) |>
   summarize(
     Mean = mean(Response),
-    SE = sd(Response)/sqrt(n())
+    SE = sd(Response)/sqrt(n()),
+    SD = sd(Response)
   ) -> d_plot
 
+t.test(use4 ~ cond, d_merged[d_merged$cond != "auto",])
+t.test(use4 ~ cond, d_merged[d_merged$cond != "co",])
+t.test(use4 ~ cond, d_merged[d_merged$cond != "dless",])
+
+# Cohen's D
+cohen.d(d_merged[d_merged$cond == "dless",]$use4, d_merged[d_merged$cond == "auto",]$use4)
+cohen.d(d_merged[d_merged$cond == "dless",]$use4, d_merged[d_merged$cond == "co",]$use4)
+cohen.d(d_merged[d_merged$cond == "co",]$use4, d_merged[d_merged$cond == "auto",]$use4)
 
 plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
   
