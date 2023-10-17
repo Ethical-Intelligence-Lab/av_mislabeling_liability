@@ -55,4 +55,5 @@ df |>
     mismarketing = ifelse(`Categorization for Coder 1` == 1, TRUE, FALSE)
   ) |>
   group_by(Journal) |>
-  summarize( prop = mean(mismarketing) ) -> prop
+  summarize( prop = mean(mismarketing),
+             count = sum(mismarketing)) -> prop

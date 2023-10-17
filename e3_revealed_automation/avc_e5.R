@@ -674,9 +674,10 @@ source('process.R')
 
 d_merged$cond = as.factor(d_merged$cond)
 d_merged$cond = as.numeric(d_merged$cond)
+d_merged$transparency = as.numeric(as.factor(d_merged$transparency))
+d_merged$label = as.numeric(as.factor(d_merged$label))
 
-
-
+d_merged$transparency <- ifelse(d_merged$transparency == 1, 2, 1)
 
 ##(1) SOFTWARE RESPONSBIBILITY
 
@@ -704,14 +705,14 @@ process(data = d_merged, y = "human_liability", x = "cond",
 
 ##(1) HUMAN COMBINED
 
-process(data = d_merged, y = "human", x = "cond", 
-        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+process(data = d_merged, y = "human", x = "label", 
+        m =c("automation"), w = "transparency",model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ##(1) FIRM COMBINED
 
-process(data = d_merged, y = "firm", x = "cond", 
-        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+process(data = d_merged, y = "firm", x = "label", 
+        m =c("automation"), w = "transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## ================================================================================================================
@@ -728,15 +729,10 @@ process(data = d_merged, y = "human_liability", x = "cond",
 
 std.error <- function(x) sd(x)/sqrt(length(x))
 
-d_subset |>
-  gather(key = "DV", value = "Value",
-         firm_responsibility, human_responsibility,
-         firm_liability, human_liability) |>
+d_merged |>
+  gather(key = "DV", value = "Value", firm, human) |>
   mutate(
-    DV = case_when( DV == "human_liability" ~ "Human Driver Liability",
-                    DV == "firm_liability" ~ "Firm Liability",
-                    DV == "human_responsibility" ~ "Human Driver Responsibility",
-                    DV == "firm_responsibility" ~ "AV Software Responsibility",),
+    DV = ifelse( DV == "human", "Human Liability", "Firm Liability"),
     `Marketing Label` = ifelse(grepl("auto", cond), "Autopilot", "Copilot"),
     Disclosure = ifelse(grepl("ft", cond), "Disclosed", "Not Disclosed")
   ) |>
@@ -762,8 +758,8 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
           plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
     geom_signif(
-      y_position = c(50, 85, 125, 95, 75, 105, 115), xmin = c(0.8, 1.2, 1.0, 0.8, 1.8, 1.2, 0.8), 
-      xmax = c(1.2, 1.8, 2.0, 1.8, 2.2, 2.2, 2.2), annotation = signif, tip_length = 0.07, 
+      y_position = ypos, xmin = c(0.8, 1.8, 1.0), 
+      xmax = c(1.2, 2.2, 2.0), annotation = signif, tip_length = 0.07, 
       color='black', size = .25, textsize = 3
     ) +
     scale_fill_grey() +
@@ -771,35 +767,42 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
     ggtitle(dv) +
     xlab("Disclosure") +
     ylab("Response") +
-    scale_y_continuous(limits = c(0,125), breaks = c(0,20,40,60,80,100)) -> p
+    scale_y_continuous(limits = c(0,110), breaks = c(0,20,40,60,80,100)) -> p
   
   if(!yaxis) {
     p <- p +
       theme( axis.line.y = element_line(color = "white"),
              axis.text.y = element_blank(),
-             axis.ticks.y = element_blank())
+             axis.ticks.y = element_blank()) +
+      ylab("")
   }
   
   return(p)
 }
 
-plot_did(dv = "AV Software Responsibility", signif = c("+", "***", "ns", "***", "**", "***", "***"), ypos = c(75,75,90), yaxis=F) -> p4
+plot_did(dv = "Firm Liability", signif = c("+", "**", "ns"), ypos = c(75,75,90), yaxis=T) -> p4
 p4
 
-cond1 <- "auto_ft"
+cond1 <- "auto_nt"
 cond2 <- "co_nt"
-t.test(d_merged[d_merged == cond1,]$firm_responsibility,
-       d_merged[d_merged == cond2,]$firm_responsibility)
+t.test(d_merged[d_merged == cond1,]$firm,
+       d_merged[d_merged == cond2,]$firm)
 
-plot_did(dv = "Firm Liability", signif = c("*", "***", "ns", "***", "ns", "***", "***"), ypos = c(75,75,90)) -> p3
+x <- aov(human ~ as.factor(label) * as.factor(transparency), data = d_merged)
+summary(x)
+
+plot_did(dv = "Human Liability", signif = c("ns", "+", "ns"), ypos = c(95,95,108), yaxis=F) -> p3
 p3
 
 cond1 <- "co_nt"
-cond2 <- "auto_ft"
-t.test(d_merged[d_merged == cond1,]$firm_liability,
-       d_merged[d_merged == cond2,]$firm_liability)
+cond2 <- "auto_nt"
+t.test(d_merged[d_merged == cond1,]$human,
+       d_merged[d_merged == cond2,]$human)
 
-ggarrange(p3,p4, common.legend = T)
+ggarrange(p4 + rremove("ylab") + rremove("xlab"),
+          p3 + rremove("ylab") + rremove("xlab"), common.legend = T) |>
+  annotate_figure(left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface="bold")),
+    bottom = textGrob("Disclosure", gp = gpar(cex = .8, fontface="bold")))
 
 plot_did(dv = "Human Driver Liability", signif = c("ns", "ns", "ns")) -> p1
 plot_did(dv = "Firm Liability", signif = c("**", "ns", "ns"), yaxis=F, ypos = c(75,75,90))  -> p2
@@ -811,7 +814,7 @@ ggarrange(p1 + rremove("ylab") + rremove("xlab"),
           p3 + rremove("ylab") + rremove("xlab"), 
           p4 + rremove("ylab") + rremove("xlab"),
           ncol = 2, nrow = 2, common.legend = TRUE) |>
-  annotate_figure( left = textGrob("Mean Rating", rot = 90, vjust = 1, gp = gpar(cex = .8)),
+  annotate_figure( left = textGrob("Mean Rating", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface="bold")),
                    bottom = textGrob("Disclosure of True Level of Automation", gp = gpar(cex = .8)))
 
 rm(p1, p2, p3, p4)

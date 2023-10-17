@@ -10,6 +10,7 @@ library(tidyverse)
 library(ggpubr)
 library(ggsignif)
 library(grid)
+library(ltm)
 source('../e2_liability/process.R')
 
 #==============================================================
@@ -72,22 +73,23 @@ std_colnames <- c("id", "cond", "transparency", "label", "resp_soft", "resp_huma
 
 auto_op <- df |>
   filter(cond == "auto_op") |>
-  select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}1_[0-9]{1,}"), auto_1, age, gender, ai_knowledge_1, license)
+  dplyr::select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}1_[0-9]{1,}"), auto_1, age, gender, ai_knowledge_1, license)
 colnames(auto_op) <- std_colnames
 
 auto_ft <- df |>
   filter(cond == "auto_ft") |>
-  select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}3_[0-9]{1,}"), auto_2, age, gender, ai_knowledge_1, license)
+  dplyr::select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}3_[0-9]{1,}"), auto_2, age, gender, ai_knowledge_1, license)
+
 colnames(auto_ft) <- std_colnames
 
 co_op <- df |>
   filter(cond == "co_op") |>
-  select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}2_[0-9]{1,}"), co_1, age, gender, ai_knowledge_1, license)
+  dplyr::select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}2_[0-9]{1,}"), co_1, age, gender, ai_knowledge_1, license)
 colnames(co_op) <- std_colnames
 
 co_ft <- df |>
   filter(cond == "co_ft") |>
-  select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}4_[0-9]{1,}"), co_2, age, gender, ai_knowledge_1, license)
+  dplyr::select(id, cond, transparency, label, matches("[a-z]{1,}_[a-z]{1,}4_[0-9]{1,}"), co_2, age, gender, ai_knowledge_1, license)
 colnames(co_ft) <- std_colnames
 
 d <- rbind(auto_ft, co_ft, co_op, auto_op)
@@ -227,6 +229,14 @@ f_t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$firm,
                d[d$transparency == 'no' & d$label == 'co',]$firm, paired = FALSE)
 f_t2
 
+d |>
+  group_by(transparency, label) |>
+  summarize(
+    sd_human = sd(human),
+    sd_firm = sd(firm),
+    m_human = mean(human),
+    m_firm = mean(firm)
+  ) -> a
 #=================================================================================
 # PLOTS LABEL-TRANSPARENCY
 #=================================================================================
@@ -234,12 +244,9 @@ std.error <- function(x) sd(x)/sqrt(length(x))
 
 d |>
   gather(key = "DV", value = "Value", 
-         resp_soft, resp_human, liable_firm, liable_human) |>
+         firm, human) |>
   mutate(
-    DV = case_when( DV == "liable_human" ~ "Human Driver Liability",
-                    DV == "liable_firm" ~ "Firm Liability",
-                    DV == "resp_human" ~ "Human Driver Responsibility",
-                    DV == "resp_soft" ~ "AV Software Responsibility",),
+    DV = ifelse( DV == "firm", "Firm Liability", "Human Liability"),
     `Marketing Label` = case_when(
                     label == "auto" ~ "Autopilot",
                     label == "co" ~ "Copilot"
@@ -269,7 +276,8 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
     geom_point(aes(y=mean),position=position_dodge(width = .9), size=.75, color="black") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
-          plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
+          plot.title = element_text(hjust = 0.5, face = "bold", size=10)
+          ) +
     geom_signif(
       y_position = ypos, xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
       annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3 
@@ -291,18 +299,16 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Human Driver Liability", signif = c("*", "ns", "*")) -> p1
-plot_did(dv = "Firm Liability", signif = c("*", "ns", "*"), yaxis=F, ypos = c(60,60,74))  -> p2
+plot_did(dv = "Human Liability", signif = c("*", "ns", "*"), yaxis=F) -> p1
+plot_did(dv = "Firm Liability", signif = c("*", "ns", "+"), ypos = c(60,60,74))  -> p2
 plot_did(dv = "Human Driver Responsibility", signif = c("*", "ns", "*"))  -> p3
 plot_did(dv = "AV Software Responsibility", signif = c("+", "ns", "ns"), yaxis=F, ypos = c(60,60,74)) -> p4
 
-ggarrange(p1 + rremove("ylab") + rremove("xlab"),
-          p2 + rremove("ylab") + rremove("xlab"), 
-          p3 + rremove("ylab") + rremove("xlab"), 
-          p4 + rremove("ylab") + rremove("xlab"),
-          ncol = 2, nrow = 2, common.legend = TRUE) |>
-          annotate_figure( left = textGrob("Mean Rating", rot = 90, vjust = 1, gp = gpar(cex = .8)),
-                           bottom = textGrob("Transparency Condition", gp = gpar(cex = .8)))
+ggarrange(p2 + rremove("ylab") + rremove("xlab"),
+          p1 + rremove("ylab") + rremove("xlab"),
+          ncol = 2, common.legend = TRUE) |>
+          annotate_figure( left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface = "bold")),
+                           bottom = textGrob("Transparency Condition", gp = gpar(cex = .8, fontface = "bold")))
 
 rm(p1, p2, p3, p4)
 
@@ -348,36 +354,36 @@ process(data = d_process, y = "human", x = "label",
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 #=================================================================================
-# MODERATED (transparency) MEDIATION (capability) MODEL 5
+# MODERATED (transparency) MEDIATION (capability) MODEL 14
 #=================================================================================
 # SOFTWARE RESPONSBIBILITY
 process(data = d_process, y = "resp_soft", x = "label", 
-        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 # HUMAN RESPONSBIBILITY
 process(data = d_process, y = "resp_human", x = "label", 
-        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 # FIRM LIABILITY
 process(data = d_process, y = "liable_firm", x = "label", 
-        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 # HUMAN LIABILITY
 process(data = d_process, y = "liable_human", x = "label", 
-        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 # FIRM COMBINED
 process(data = d_process, y = "firm", x = "label", 
-        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 # HUMAN COMBINED
 process(data = d_process, y = "human", x = "label", 
-        m =c("capability"), w="transparency", model = 5, effsize = 1, total = 1, stand = 1, 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 #=================================================================================

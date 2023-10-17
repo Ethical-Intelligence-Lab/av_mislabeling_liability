@@ -42,19 +42,28 @@ n_excluded <- n_original - length(df$StartDate)
 
 prop_excluded <- n_excluded / n_original
 
+percentage_clicked <- mean(as.numeric(df$clicked))
+percentage_clicked
+
+df <- df[df$clicked == 1,]
+
+word_cloud <- file("wordCloud.txt", "wb")
+writeBin( paste(df$words_1, collapse="\n"), word_cloud ) 
+close(word_cloud)
+
 # Relevant Columns and Elongate Data
 rel_col <- c("level_1", "level_2", "hard_1_1", "info_text", "level_3", "gender", "age", "license", "ai_knowledge_1")
 df <- df[,rel_col]
 
 df |>
   filter(level_1 == 1) |>
-  select(level_1, level_2, hard_1_1, gender, age, license, ai_knowledge_1) -> found
+  dplyr::select(level_1, level_2, hard_1_1, gender, age, license, ai_knowledge_1) -> found
 
 colnames(found) <- c("found", "auto_level", "difficulty", "gender", "age", "license", "ai_knowledge")
 
 df |>
   filter(level_1 == 2) |>
-  select(level_1, level_3, hard_1_1, gender, age, license, ai_knowledge_1) -> not_found
+  dplyr::select(level_1, level_3, hard_1_1, gender, age, license, ai_knowledge_1) -> not_found
 
 colnames(not_found) <- colnames(found)
 
@@ -63,7 +72,7 @@ df <- rbind(found, not_found)
 rm(found, not_found)
 
 df |>
-  summarize_all(as.numeric) |>
+  dplyr::summarize_all(as.numeric) |>
   mutate( found = ifelse(found == 1, TRUE, FALSE ))-> df
 
 #==============================================================
@@ -90,6 +99,8 @@ prop.table(table(df$license))
 # Proportion Correct
 #==============================================================
 df$is_correct <- df$auto_level == 2
+
+mean(df$auto_level > 3)
 
 prop_correct <- mean(df$is_correct)
 prop_correct
@@ -135,3 +146,37 @@ t.test(difficulty, mu = 50)
 # ANOVA & T-TESTS
 #==============================================================
 
+df |>
+  group_by(auto_level, found) |>
+  summarize( count = n()) -> df_plot
+
+df_plot <- as.data.frame(df_plot)
+df_plot[nrow(df_plot) + 1,] <- c(3, TRUE, 0)
+df_plot[nrow(df_plot) + 1,] <- c(1, TRUE, 0)
+df_plot[nrow(df_plot) + 1,] <- c(1, FALSE, 0)
+
+df |>
+  mutate(high = ifelse(auto_level > 3, T, F)) |>
+  group_by(high) |>
+  summarize(count = n())
+
+df_plot |>
+  mutate( Found = ifelse(found == 1, "TRUE", FALSE),
+          `Level of Automation` = auto_level) -> df_plot
+
+ggplot(data = df_plot, aes(x=`Level of Automation`, y = count, fill = Found)) +
+  geom_bar(stat="identity", position="dodge", alpha = .75) +
+  scale_fill_grey() +
+  scale_color_grey() + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, face = "bold"), legend.position = "top",
+        axis.title = element_text(face="bold")) +
+  scale_x_discrete(name ="Level of Automation", 
+                   limits = 1:6) +
+  scale_y_discrete(
+    name = "Number of Responses",
+    limits = 0:10
+  ) 
+
+  

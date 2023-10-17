@@ -220,6 +220,7 @@ cor(d_merged$`human responsibility`, d_merged$`human liability`)
 ## ================================================================================================================
 t_names <- c("Autopilot", "Copilot")
 
+
 ##(1) AUTOMATION LEVEL
 
 p1 <- ggplot(d_merged,aes(x=factor(cond),y=automation)) +  
@@ -422,7 +423,8 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
+        plot.title = element_text(hjust = 0.5, face = "bold", size=12), 
+        axis.title=element_text(size=10,face="bold")) +
   ylab("Mean Ratings") +
   xlab("") +
   ggtitle("Firm Liability") -> p1
@@ -440,7 +442,7 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=10),
+        plot.title = element_text(hjust = 0.5, face = "bold", size=12),
         axis.line.y = element_blank(), axis.ticks.y = element_blank(),
         axis.text.y = element_blank()) +
   ylab("") +
@@ -450,7 +452,7 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
 p2
 
 ggarrange(p1,p2) |>
-  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = .8)))
+  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = 1, fontsize=10, fontface="bold")))
 
 ## export merged data frame
 write.csv(d_merged,"avc_e4_merged.csv")

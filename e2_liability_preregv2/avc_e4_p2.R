@@ -397,7 +397,6 @@ d_merged |>
 
 t.test(Firm ~ `Marketing Label`, d_plot)
 t.test(Human ~ `Marketing Label`, d_plot)
-t.test(automation ~ `Marketing Label`, d_plot)
 
 summary(lm(Firm ~ `Marketing Label`, d_plot))
 summary(lm(Human ~ `Marketing Label`, d_plot))
@@ -419,14 +418,16 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
   geom_errorbar(aes(ymin=avg_F-(se_F*se_width), ymax=avg_F+(se_F*se_width)), position = "dodge", 
                 size=.25, color="black", width=.75) +
   geom_signif(
-    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    y_position = c(85), xmin = c("Autopilot"), xmax = c( "Copilot"),
     annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=10)) +
+        plot.title = element_text(hjust = 0.5, face = "bold", size=12), 
+        axis.title=element_text(size=10,face="bold")) +
   ylab("Mean Ratings") +
   xlab("") +
+  ylim(0,100) +
   ggtitle("Firm Liability") -> p1
 
 p1
@@ -437,22 +438,23 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
   geom_errorbar(aes(ymin=avg_H-(se_H*se_width), ymax=avg_H+(se_H*se_width)), position = "dodge", 
                 size=.25, color="black", width=.75) +
   geom_signif(
-    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    y_position = c(85), xmin = c("Autopilot"), xmax = c( "Copilot"),
     annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=10),
+        plot.title = element_text(hjust = 0.5, face = "bold", size=12),
         axis.line.y = element_blank(), axis.ticks.y = element_blank(),
         axis.text.y = element_blank()) +
   ylab("") +
   xlab("") +
+  ylim(0,100) +
   ggtitle("Human Liability") -> p2
 
 p2
 
 ggarrange(p1,p2) |>
-  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = .8)))
+  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = 1, fontsize=10, fontface="bold")))
 
 ## export merged data frame
 write.csv(d_merged,"avc_e4_merged.csv")
@@ -460,4 +462,3 @@ write.csv(d_merged,"avc_e4_merged.csv")
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 
 ## ================================================================================================================
-

@@ -55,6 +55,7 @@ table(d$cond)
 ## ================================================================================================================
 relevant_columns <- colnames(d)[grepl('use_|value_|auto_|co_|dr_', colnames(d))]
 relevant_columns <- relevant_columns[!grepl("av_frame", relevant_columns)]
+relevant_columns <- c(relevant_columns)
 
 d <- d[, relevant_columns]
 
@@ -86,6 +87,29 @@ colnames(dless) <- new_colnames
 
 d_merged <- rbind(auto, co, dless)
 
-rm(d, dless, auto, co)
+rm(dless, auto, co)
 
 # Filtering extreme price suggestions ???
+d_merged |>
+  filter(value4 != 30, value4 != 50, value4 != 480000) -> d_merged
+
+## ================================================================================================================
+##                                            PARTICIPANT CHARACTERISTICS                 
+## ================================================================================================================
+
+## age
+mean(d$age, na.rm = TRUE) ## mean age 
+hist(d$age)
+
+## gender
+table(d$gender)[1]/sum(table(d$gender)) ## percentage of males
+table(d$gender)[2]/sum(table(d$gender)) ## percentage of females
+prop.table
+
+## av knowledge
+mean(d$ai_knowledge_1, trim = 0, na.rm = TRUE) ## mean av knowledge 
+hist(d$ai_knowledge)
+
+## license
+table(d$license)[1]/sum(table(d$license)) ## percentage with driver's license
+table(d$license)[2]/sum(table(d$license)) ## percentage without driver's license
