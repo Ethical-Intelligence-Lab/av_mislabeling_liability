@@ -92,6 +92,9 @@ d |>
 d |>
   filter((comp_4 == 1 | is.na(comp_4))) -> d
 
+n_comprehension <- nrow(d)
+
+n_attention - n_comprehension
 #=================================================================================
 # PARTICIPANT CHARACTERISTICS
 #=================================================================================
@@ -125,25 +128,62 @@ t1 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
               d[d$benefits == 'Present' & d$label == 'co',]$firm, paired = FALSE)
 t1
 
+sd(d[d$benefits == 'Present' & d$label == 'auto',]$firm)
+sd(d[d$benefits == 'Present' & d$label == 'co',]$firm)
+
 t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
                 d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
 t2
 
-t3 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
-             d[d$benefits == 'Present' & d$label == 'auto',]$firm, paired = FALSE)
-t3
+sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
+sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
-t4 <- t.test(d[d$benefits == 'Absent' & d$label == 'co',]$firm,
-             d[d$benefits == 'Present' & d$label == 'co',]$firm, paired = FALSE)
-t4
-
-summary(lm(firm ~ label*benefits,d))
 
 # HUMAN
 a <- aov(human ~ as.factor(label) * as.factor(benefits), data = d)
 summary(a)
 anova_stats(a)
 
+t1 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$human,
+             d[d$benefits == 'Present' & d$label == 'co',]$human, paired = FALSE)
+t1
+
+sd(d[d$benefits == 'Present' & d$label == 'auto',]$human)
+sd(d[d$benefits == 'Present' & d$label == 'co',]$human)
+
+t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
+             d[d$benefits == 'Absent' & d$label == 'co',]$human, paired = FALSE)
+t2
+
+sd(d[d$benefits == 'Absent' & d$label == 'auto',]$human)
+sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
+
+
+#=================================================================================
+# PROCESS
+#=================================================================================
+d_process <- d
+d_process$label <- as.numeric(as.factor(d_process$label))
+d_process$benefits <- as.numeric(as.factor(d_process$benefits))
+
+# FIRM COMBINED
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+# HUMAN COMBINED
+process(data = d_process, y = "human", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# FIRM COMBINED
+process(data = d_process, y = "firm", x = "label", w = "benefits",
+        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN COMBINED
+process(data = d_process, y = "human", x = "label", w = "benefits",
+        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 #=================================================================================
 # PLOTS LABEL-TRANSPARENCY
 #=================================================================================
@@ -203,8 +243,8 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Human Liability", signif = c("ns", "ns", "ns"), yaxis=F) -> p1
-plot_did(dv = "Firm Liability", signif = c("ns", "ns", "+"))  -> p2
+plot_did(dv = "Human Liability", signif = c("***", "***", "ns"), yaxis=F) -> p1
+plot_did(dv = "Firm Liability", signif = c("***", "***", "ns"))  -> p2
 p1
 p2
 
