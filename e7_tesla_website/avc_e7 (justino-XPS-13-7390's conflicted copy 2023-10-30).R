@@ -47,7 +47,18 @@ percentage_clicked
 
 df <- df[df$clicked == 1,]
 
-word_cloud <- file("wordCloud.txt", "wb")
+# Word Counts
+sum(grepl("cameras", df$words_1, ignore.case = T))
+sum(grepl("sensor", df$words_1, ignore.case = T))
+sum(grepl("steer", df$words_1, ignore.case = T))
+sum(grepl("parking", df$words_1, ignore.case = T))
+sum(grepl("self-driving", df$words_1, ignore.case = T))
+sum(grepl("autopilot", df$words_1, ignore.case = T))
+sum(grepl("autonomous", df$words_1, ignore.case = T))
+sum(grepl("advanced", df$words_1, ignore.case = T))
+sum(grepl("full", df$words_1, ignore.case = T))
+
+sword_cloud <- file("wordCloud.txt", "wb")
 writeBin( paste(df$words_1, collapse="\n"), word_cloud ) 
 close(word_cloud)
 
@@ -180,11 +191,3 @@ ggplot(data = df_plot, aes(x=`Level of Automation`, y = count, fill = Found)) +
   ) 
 
 wc <- read_csv("word_count.csv")
-wc |>
-  arrange(desc(count)) -> wc
-ggplot(wc, aes( x=count, y = reorder(word, (count)))) +
-  geom_bar(stat="identity") +
-  theme_classic() +
-  xlab("Count") +
-  ylab("Keywords") + 
-  theme(axis.title = element_text(face="bold"))

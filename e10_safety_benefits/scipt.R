@@ -35,7 +35,7 @@ pacman::p_load('tidyverse',       # most stuff
                "sjstats"
 )
 
-source('../e2_liability/process.R')
+source('./process.r')
 
 
 #==============================================================
@@ -138,6 +138,14 @@ t2
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
+t3 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
+             d[d$benefits == 'Absent' & d$label == 'auto',]$firm, paired = FALSE)
+t3
+
+t4 <- t.test(d[d$benefits == 'Present' & d$label == 'co',]$firm,
+             d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
+t4
+
 
 # HUMAN
 a <- aov(human ~ as.factor(label) * as.factor(benefits), data = d)
@@ -158,6 +166,14 @@ t2
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$human)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
 
+# 2 (benefits) x 2 (label) x 2 (agent)
+d |>
+  select(benefits, label, human, firm) |>
+  gather(key = "agent", value = "liability", human, firm) -> d_2
+
+a <- aov(liability ~ as.factor(label) * as.factor(benefits) * as.factor(agent), data = d_2)
+summary(a)
+anova_stats(a)
 
 #=================================================================================
 # PROCESS
@@ -243,8 +259,8 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Human Liability", signif = c("***", "***", "ns"), yaxis=F) -> p1
-plot_did(dv = "Firm Liability", signif = c("***", "***", "ns"))  -> p2
+plot_did(dv = "Human Liability", signif = c("ns", "***", "*"), yaxis=F) -> p1
+plot_did(dv = "Firm Liability", signif = c("***", "**", "ns"))  -> p2
 p1
 p2
 
@@ -252,4 +268,4 @@ ggarrange(p2 + rremove("ylab") + rremove("xlab"),
           p1 + rremove("ylab") + rremove("xlab"),
           ncol = 2, common.legend = TRUE) |>
   annotate_figure( left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface = "bold")),
-                   bottom = textGrob("Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
+                   bottom = textGrob("Safety Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
