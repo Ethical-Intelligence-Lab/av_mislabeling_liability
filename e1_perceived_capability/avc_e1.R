@@ -572,13 +572,13 @@ plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
   se_width <- 1.96
   
   ggplot(data = d_plot, aes(x=factor(Condition, level = c("Copilot", "Autopilot", "Driverless")), y=Mean)) +
-    geom_bar(stat="identity", alpha=.75) +
-    geom_point(size=.75, color="black") +
+    geom_bar(stat="identity", alpha=.75, width=.75) +
+    geom_point(size=.5, color="black") +
     geom_errorbar(aes(ymin=Mean-(SE*se_width), ymax=Mean+(SE*se_width)), position = "dodge", 
-                  size=.25, color="black", width=.75) +
+                  size=1, color="black", width=.5) +
     geom_signif(
       y_position = y_pos, xmin = c("Copilot", "Autopilot", "Driverless"), xmax = c("Autopilot", "Driverless", "Copilot"),
-      annotation = signif, tip_length = 0.1, color='black', size = .5, textsize = 3.5
+      annotation = signif, tip_length = 0.1, color='black', size = 1, textsize = 10
     ) + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
@@ -589,11 +589,12 @@ plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
   return(p)
 }
 
-plot_bar(dv = "Perceived Automation", y_pos = c(6, 6.75, 7.5),
+plot_bar(dv = "Perceived Automation", y_pos = c(6, 6.5, 7),
          signif = c("***", "ns", "***"), 
          titulo = "Perceived Level of Automation") -> a1
 
-a1
+a1 +
+  theme(text = element_text(face = "bold", size=30)) 
 
 plot_bar(dv = "Misinterpret", y_pos = c(80, 80, 85),
          signif = c("**", "**", "ns"), 

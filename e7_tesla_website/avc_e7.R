@@ -170,21 +170,22 @@ ggplot(data = df_plot, aes(x=`Level of Automation`, y = count, fill = Found)) +
   scale_color_grey() + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold"), legend.position = "top",
-        axis.title = element_text(face="bold")) +
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 30), legend.position = "top",
+        axis.title = element_text(face="bold"), text = element_text(face="bold", size=20)) +
   scale_x_discrete(name ="Level of Automation", 
                    limits = 1:6) +
   scale_y_discrete(
     name = "Number of Responses",
     limits = 0:10
-  ) 
+  ) + scale_fill_manual(values=c("#010101", "#a91d3a"))
 
 wc <- read_csv("word_count.csv")
 wc |>
   arrange(desc(count)) -> wc
+
 ggplot(wc, aes( x=count, y = reorder(word, (count)))) +
   geom_bar(stat="identity") +
   theme_classic() +
   xlab("Count") +
   ylab("Keywords") + 
-  theme(axis.title = element_text(face="bold"))
+  theme(axis.title = element_text(face="bold", size=30), axis.text = element_text(face="bold", size=20))

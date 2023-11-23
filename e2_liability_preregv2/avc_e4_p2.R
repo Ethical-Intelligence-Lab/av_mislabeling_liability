@@ -413,24 +413,24 @@ d_plot |>
 se_width <- 1.96
 
 ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Copilot")), y=avg_F)) +
-  geom_bar(stat="identity", alpha=.75) +
-  geom_point(size=.75, color="black") +
+  geom_bar(stat="identity", alpha=.75, width=.75) +
+  geom_point(size=.5, color="black") +
   geom_errorbar(aes(ymin=avg_F-(se_F*se_width), ymax=avg_F+(se_F*se_width)), position = "dodge", 
-                size=.25, color="black", width=.75) +
+                size=1, color="black", width=.5) +
   geom_signif(
-    y_position = c(85), xmin = c("Autopilot"), xmax = c( "Copilot"),
-    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
+    y_position = c(90), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    annotation = c("***"), tip_length = 0.1, color='black', size = 1, textsize = 10
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         plot.title = element_text(hjust = 0.5, face = "bold", size=12), 
-        axis.title=element_text(size=10,face="bold")) +
-  ylab("Mean Ratings") +
-  xlab("") +
-  ylim(0,100) +
-  ggtitle("Firm Liability") -> p1
+        axis.title=element_text(size=30,face="bold"),) +
+  ylab("Firm Liability") +
+  xlab("Marketing Labels") +
+  ylim(0,100)  -> p1
 
-p1
+p1 +
+  theme(text = element_text(face = "bold", size=30))
 
 ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Copilot")), y=avg_H)) +
   geom_bar(stat="identity", alpha=.75) +
@@ -438,7 +438,7 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Co
   geom_errorbar(aes(ymin=avg_H-(se_H*se_width), ymax=avg_H+(se_H*se_width)), position = "dodge", 
                 size=.25, color="black", width=.75) +
   geom_signif(
-    y_position = c(85), xmin = c("Autopilot"), xmax = c( "Copilot"),
+    y_position = c(80), xmin = c("Autopilot"), xmax = c( "Copilot"),
     annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),

@@ -35,7 +35,7 @@ pacman::p_load('tidyverse',       # most stuff
                "sjstats"
 )
 
-source('./process.r')
+source('../process.r')
 
 
 #==============================================================
@@ -99,7 +99,7 @@ n_attention - n_comprehension
 # PARTICIPANT CHARACTERISTICS
 #=================================================================================
 # AGE
-mean(d$age) # filtering the ones who put year
+mean(as.numeric(d$age), na.rm=T) # filtering the ones who put year
 
 # GENDER
 prop_male <- prop.table(table(d$gender))[[1]]; prop_male
@@ -138,13 +138,6 @@ t2
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
-t3 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
-             d[d$benefits == 'Absent' & d$label == 'auto',]$firm, paired = FALSE)
-t3
-
-t4 <- t.test(d[d$benefits == 'Present' & d$label == 'co',]$firm,
-             d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
-t4
 
 
 # HUMAN
@@ -183,6 +176,7 @@ t2
 
 sd(d[d$benefits == 'Present',]$human)
 sd(d[d$benefits == 'Absent',]$human)
+
 
 
 #=================================================================================
@@ -243,7 +237,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
     geom_bar(stat="identity", position="dodge", alpha=.75) +
     geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = position_dodge(width=.9), 
                   size=1, color="black", width=.5) +
-    geom_point(aes(y=mean),position=position_dodge(width = .9), size=.5, color="black") +
+    geom_point(aes(y=mean),position=position_dodge(width = .9), size=.75, color="black") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
           plot.title = element_text(hjust = 0.5, face = "bold")
@@ -255,7 +249,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
     scale_fill_grey() +
     scale_color_grey() +
     ggtitle(dv) +
-    xlab("Human Safety Risks") +
+    xlab("AV Safety Benefits") +
     ylab("Response") +
     scale_y_continuous(limits = c(0,118), breaks = c(0,20,40,60,80,100)) -> p
   
@@ -269,7 +263,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Human Liability", signif = c("ns", "***", "*"), yaxis=F) -> p1
+plot_did(dv = "Human Liability", signif = c("**", "**", "ns"), yaxis=F) -> p1
 plot_did(dv = "Firm Liability", signif = c("***", "**", "ns"), yaxis=F)  -> p2
 p1
 p2 + theme( legend.position = "top", text = element_text(face="bold", size=30)) + ggtitle("") +
@@ -279,4 +273,4 @@ ggarrange(p2 + rremove("ylab") + rremove("xlab"),
           p1 + rremove("ylab") + rremove("xlab"),
           ncol = 2, common.legend = TRUE) |>
   annotate_figure( left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface = "bold")),
-                   bottom = textGrob("Human Safety Risks Condition", gp = gpar(cex = .8, fontface = "bold")))
+                   bottom = textGrob("AV Safety Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
