@@ -216,7 +216,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   ggplot(data = d_plot, aes(x=Benefits, y=mean, fill=`Marketing Label`)) +
     geom_bar(stat="identity", position="dodge", alpha=.75) +
     geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = position_dodge(width=.9), 
-                  size=1, color="black", width=.5) +
+                  size=.25, color="black", width=.5) +
     geom_point(aes(y=mean),position=position_dodge(width = .9), size=.5, color="black") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
@@ -224,12 +224,12 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
     ) +
     geom_signif(
       y_position = ypos, xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
-      annotation = signif, tip_length = 0.1, color='black', size = 1, textsize = 10 
+      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3.5 
     ) +
     scale_fill_grey() +
     scale_color_grey() +
     ggtitle(dv) +
-    xlab("Environmental Benefits") +
+    xlab("Benefits") +
     ylab("Response") +
     scale_y_continuous(limits = c(0,118), breaks = c(0,20,40,60,80,100)) -> p
   
@@ -242,16 +242,15 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   
   return(p)
 }
-
 plot_did(dv = "Human Liability", signif = c("***", "***", "ns"), yaxis=F) -> p1
 plot_did(dv = "Firm Liability", signif = c("***", "***", "ns"))  -> p2
 
-p2 + theme( legend.position = "top", text = element_text(face="bold", size=30)) + ggtitle("") +
-  ylab("Firm Liability") + scale_fill_manual(values=c("#010101", "#a91d3a"))
+p2 
 
 ggarrange(p2 + rremove("ylab") + rremove("xlab"),
           p1 + rremove("ylab") + rremove("xlab"),
           ncol = 2, common.legend = TRUE) |>
   annotate_figure( left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface = "bold")),
-                   bottom = textGrob("Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
+                   bottom = textGrob("Environmental Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
 
+ggsave("env_benefits.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
