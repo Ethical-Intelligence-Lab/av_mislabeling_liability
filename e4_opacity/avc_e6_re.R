@@ -294,7 +294,7 @@ d |>
     )
   ) |>
   group_by(`Marketing Label`, Transparency, DV) |>
-  summarize( 
+  summarise( 
     mean = mean(Value),
     se = std.error(Value) 
     ) -> d_plot
@@ -313,7 +313,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
     geom_point(aes(y=mean),position=position_dodge(width = .9), size=.5, color="black") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
-          plot.title = element_text(hjust = 0.5, face = "bold")
+          plot.title = element_text(hjust = 0.5, face = "bold", size=10)
           ) +
     geom_signif(
       y_position = ypos, xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),

@@ -53,6 +53,7 @@ df |>
 # Consider the labels
 df$`Consider Label` <- ifelse(df$risk_1 == 1, "Yes", "No")
 table(df$`Consider Label`)
+prop.table(table(df$`Consider Label`))
 
 # Adjust Risk Estimates
 t.test(df$adjust_4, mu = 50)

@@ -734,10 +734,18 @@ process(data = d_merged, y = "human_liability", x = "cond",
 ##(1) HUMAN COMBINED
 
 process(data = d_merged, y = "human", x = "label", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+process(data = d_merged, y = "human", x = "label", 
         m =c("automation"), w = "transparency",model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ##(1) FIRM COMBINED
+
+process(data = d_merged, y = "firm", x = "label", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 process(data = d_merged, y = "firm", x = "label", 
         m =c("automation"), w = "transparency", model = 14, effsize = 1, total = 1, stand = 1, 
