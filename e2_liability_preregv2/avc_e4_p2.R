@@ -198,6 +198,14 @@ t.test(`software responsibility` ~ cond, data = d_merged) ## Perceived Software 
 t.test(`human responsibility` ~ cond, data = d_merged)
 t.test(`firm liability` ~ cond, data = d_merged)
 t.test(`human liability` ~ cond, data = d_merged)
+
+d_merged$human <- (d_merged$`human liability` + d_merged$`human responsibility`)/2
+d_merged$firm <- (d_merged$`firm liability` + d_merged$`software responsibility`)/2
+
+# Cohen's D
+cohen.d(d_merged[d_merged$cond == "auto",]$automation, d_merged[d_merged$cond == "co",]$automation)
+cohen.d(d_merged[d_merged$cond == "auto",]$human, d_merged[d_merged$cond == "co",]$human)
+cohen.d(d_merged[d_merged$cond == "auto",]$firm, d_merged[d_merged$cond == "co",]$firm)
  
 
 ## ================================================================================================================

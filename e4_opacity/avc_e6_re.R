@@ -10,7 +10,27 @@ library(tidyverse)
 library(ggpubr)
 library(ggsignif)
 library(grid)
-library(ltm)
+pacman::p_load('ggplot2',         # plotting
+               'ggsignif',        # plotting significance bars
+               'lme4',            # functions for fitting linear regression models
+               'ggforce',         # make ggplot even fancier
+               'ggpubr',          # arrange plots in a grid, if needed
+               'ltm',             # probably not using..
+               'tidyr',           # tools for cleaning messy data
+               'stringr',         # perform string substitutions easily
+               'assertthat',      # allows me to check whether a variable is a string, with is.string
+               'emmeans',         # contrast analysis for regression models
+               'stats',           # use function to adjust for multiple comparisons
+               'filesstrings',    # create and move files
+               'simr',            # power analysis for mixed models
+               'compute.es',      # effect size package
+               'effsize',         # another effect size package
+               'pwr',             # package for power calculation
+               'nlme',            # get p values for mixed effect model
+               'DescTools',        # get Cramer's V
+               'rstatix',
+               'effects'
+)
 source('../e2_liability/process.R')
 
 #==============================================================
@@ -214,9 +234,16 @@ anova_stats(h_anova)
 h_t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$human,
                 d[d$transparency == 'yes'& d$label == 'co',]$human, paired = FALSE)
 h_t1
+
+cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$human,
+       d[d$transparency == 'yes'& d$label == 'co',]$human)
+
 h_t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$human,
                 d[d$transparency == 'no' & d$label == 'co',]$human, paired = FALSE)
 h_t2
+
+cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$human,
+        d[d$transparency == 'no'& d$label == 'co',]$human)
 
 ## FIRM COMBINED
 ### ANOVA
@@ -228,9 +255,16 @@ anova_stats(f_anova)
 f_t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
                d[d$transparency == 'yes'& d$label == 'co',]$firm, paired = FALSE)
 f_t1
+
+cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
+       d[d$transparency == 'yes'& d$label == 'co',]$firm)
+       
 f_t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$firm,
                d[d$transparency == 'no' & d$label == 'co',]$firm, paired = FALSE)
 f_t2
+
+cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$firm,
+        d[d$transparency == 'no'& d$label == 'co',]$firm)
 
 d |>
   group_by(transparency, label) |>

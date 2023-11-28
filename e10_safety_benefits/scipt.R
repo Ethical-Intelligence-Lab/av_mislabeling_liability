@@ -131,6 +131,9 @@ t1
 sd(d[d$benefits == 'Present' & d$label == 'auto',]$firm)
 sd(d[d$benefits == 'Present' & d$label == 'co',]$firm)
 
+cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
+       d[d$benefits == 'Present' & d$label == 'co',]$firm)
+
 t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
                 d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
 t2
@@ -138,13 +141,8 @@ t2
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
-t3 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
-             d[d$benefits == 'Absent' & d$label == 'auto',]$firm, paired = FALSE)
-t3
-
-t4 <- t.test(d[d$benefits == 'Present' & d$label == 'co',]$firm,
-             d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
-t4
+cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
+        d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
 
 # HUMAN
@@ -159,12 +157,18 @@ t1
 sd(d[d$benefits == 'Present' & d$label == 'auto',]$human)
 sd(d[d$benefits == 'Present' & d$label == 'co',]$human)
 
+cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$human,
+       d[d$benefits == 'Present' & d$label == 'co',]$human)
+
 t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
              d[d$benefits == 'Absent' & d$label == 'co',]$human, paired = FALSE)
 t2
 
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$human)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
+
+cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
+        d[d$benefits == 'Absent' & d$label == 'co',]$human)
 
 # Benefit FIRM
 
@@ -175,6 +179,9 @@ t1
 sd(d[d$benefits == 'Present',]$firm)
 sd(d[d$benefits == 'Absent',]$firm)
 
+cohen.d(d[d$benefits == 'Present',]$firm,
+       d[d$benefits == 'Absent',]$firm)
+
 # Benefit HUMAN
 
 t2 <- t.test(d[d$benefits == 'Present',]$human,
@@ -184,6 +191,8 @@ t2
 sd(d[d$benefits == 'Present',]$human)
 sd(d[d$benefits == 'Absent',]$human)
 
+cohen.d(d[d$benefits == 'Present',]$human,
+       d[d$benefits == 'Absent',]$human)
 
 #=================================================================================
 # PROCESS

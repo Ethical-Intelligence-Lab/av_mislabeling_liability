@@ -46,11 +46,39 @@ df <- df[-c(1,2),]
 df |>
   mutate_if(all.is.numeric, as.numeric) -> df
 
+#==================================================================
+# Analysis
+#==================================================================
+
+# Consider the labels
+df$`Consider Label` <- ifelse(df$risk_1 == 1, "Yes", "No")
+table(df$`Consider Label`)
+
+# Adjust Risk Estimates
+t.test(df$adjust_4, mu = 50)
+sd(df$adjust_4, na.rm = T)
+
+# Increase/Decrease Risk Estimates
+t.test(df$risk_4, mu = 50)
+sd(df$risk_4, na.rm = T)
+
+# Premiums
+t.test(df$premiums_4, mu = 50)
+sd(df$premiums_4, na.rm = T)
+
+# Advise
+t.test(df$advise_4, mu = 50)
+sd(df$advise_4, na.rm = T)
+
+#==================================================================
+# Visualization
+#==================================================================
+
 df |>
   mutate( `Consider Label` = ifelse(risk_1 == "Yes", "Yes", "No") ) |>
   group_by(`Consider Label`) |>
   summarise(count = n()) |>
-  drop_na()-> df_plot
+  drop_na() -> df_plot
 
 ggplot(data = df_plot, aes(x=`Consider Label`, y=count)) +
   geom_bar(stat="identity", position="dodge", alpha = 1) +
@@ -61,7 +89,6 @@ ggplot(data = df_plot, aes(x=`Consider Label`, y=count)) +
   ylab("Number of Response")
 
 t.test(df$adjust_4, mu = 50)
-
 sd(df$adjust_4, na.rm = T)
 
 t.test(df$risk_4, mu = 50)

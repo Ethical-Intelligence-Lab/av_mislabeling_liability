@@ -131,12 +131,18 @@ t1
 sd(d[d$benefits == 'Present' & d$label == 'auto',]$firm)
 sd(d[d$benefits == 'Present' & d$label == 'co',]$firm)
 
+cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
+       d[d$benefits == 'Present' & d$label == 'co',]$firm)
+
 t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
                 d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
 t2
 
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
+
+cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
+        d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
 
 # HUMAN
@@ -151,6 +157,9 @@ t1
 sd(d[d$benefits == 'Present' & d$label == 'auto',]$human)
 sd(d[d$benefits == 'Present' & d$label == 'co',]$human)
 
+cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$human,
+       d[d$benefits == 'Present' & d$label == 'co',]$human)
+
 t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
              d[d$benefits == 'Absent' & d$label == 'co',]$human, paired = FALSE)
 t2
@@ -158,6 +167,8 @@ t2
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$human)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
 
+cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
+        d[d$benefits == 'Absent' & d$label == 'co',]$human)
 
 #=================================================================================
 # PROCESS
@@ -170,6 +181,7 @@ d_process$benefits <- as.numeric(as.factor(d_process$benefits))
 process(data = d_process, y = "firm", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
 # HUMAN COMBINED
 process(data = d_process, y = "human", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 

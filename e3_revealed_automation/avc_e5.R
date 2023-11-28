@@ -306,17 +306,31 @@ t10
 t11 <- t.test(d_merged$human[d_merged$transparency == 'yes'& d_merged$label == 'auto'],
              d_merged$human[d_merged$transparency == 'yes'& d_merged$label == 'co'], paired = FALSE)
 t11
+
+cohen.d(d_merged$human[d_merged$transparency == 'yes'& d_merged$label == 'auto'],
+       d_merged$human[d_merged$transparency == 'yes'& d_merged$label == 'co'])
+
 t12 <- t.test(d_merged$human[d_merged$transparency == 'no'& d_merged$label == 'auto'],
               d_merged$human[d_merged$transparency == 'no'& d_merged$label == 'co'], paired = FALSE)
 t12
+
+cohen.d(d_merged$human[d_merged$transparency == 'no'& d_merged$label == 'auto'],
+        d_merged$human[d_merged$transparency == 'no'& d_merged$label == 'co'])
 
 ### T-test for firm combined
 t13 <- t.test(d_merged$firm[d_merged$transparency == 'yes'& d_merged$label == 'auto'],
               d_merged$firm[d_merged$transparency == 'yes'& d_merged$label == 'co'], paired = FALSE)
 t13
+
+cohen.d(d_merged$firm[d_merged$transparency == 'yes'& d_merged$label == 'auto'],
+       d_merged$firm[d_merged$transparency == 'yes'& d_merged$label == 'co'])
+
 t14 <- t.test(d_merged$firm[d_merged$transparency == 'no'& d_merged$label == 'auto'],
               d_merged$firm[d_merged$transparency == 'no'& d_merged$label == 'co'], paired = FALSE)
 t14
+
+cohen.d(d_merged$firm[d_merged$transparency == 'no'& d_merged$label == 'auto'],
+       d_merged$firm[d_merged$transparency == 'no'& d_merged$label == 'co'])
 
 ## (3) ANOVA
 
@@ -339,6 +353,20 @@ anova_stats(firmliab_mod)
 humaliab_mod <- aov(human_liability ~ as.factor(label) * as.factor(transparency), data = d_merged)
 summary(humaliab_mod)
 anova_stats(humaliab_mod)
+
+# COMBINED
+
+## firm liability
+firmliab_mod <- aov(firm ~ as.factor(label) * as.factor(transparency), data = d_merged)
+summary(firmliab_mod)
+anova_stats(firmliab_mod)
+
+## human liability
+humaliab_mod <- aov(human ~ as.factor(label) * as.factor(transparency), data = d_merged)
+summary(humaliab_mod)
+anova_stats(humaliab_mod)
+
+
 
 ## ================================================================================================================
 ##                                              PLOTTING MAIN FIGURES                
