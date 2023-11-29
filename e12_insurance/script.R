@@ -83,6 +83,19 @@ sd(df$advise_4, na.rm = T)
 (sum(!is.na(df$reasoning)) - 2)/length(df$reasoning)
 
 #==================================================================
+# Coded Data
+#==================================================================
+
+coded <- read_csv('coded_responses.csv')
+
+coded <- coded[!is.na(coded$code),]
+
+c <- paste(coded$code, collapse = ",")
+
+c <- strsplit(c, ",")
+
+table(c)
+#==================================================================
 # Visualization
 #==================================================================
 
