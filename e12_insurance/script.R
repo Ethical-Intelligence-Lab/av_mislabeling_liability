@@ -51,25 +51,36 @@ df |>
 #==================================================================
 
 # Consider the labels
+sum(!is.na(df$risk_1))/length(df$risk_1)
 df$`Consider Label` <- ifelse(df$risk_1 == 1, "Yes", "No")
 table(df$`Consider Label`)
 prop.table(table(df$`Consider Label`))
 
+chisq.test(table(df$`Consider Label`), p = c(.5,.5))
+
 # Adjust Risk Estimates
+sum(!is.na(df$adjust_4))/length(df$adjust_4)
 t.test(df$adjust_4, mu = 50)
 sd(df$adjust_4, na.rm = T)
 
 # Increase/Decrease Risk Estimates
+sum(!is.na(df$risk_4))/length(df$risk_4)
 t.test(df$risk_4, mu = 50)
 sd(df$risk_4, na.rm = T)
 
 # Premiums
+sum(!is.na(df$premiums_4))/length(df$premiums_4)
 t.test(df$premiums_4, mu = 50)
 sd(df$premiums_4, na.rm = T)
 
 # Advise
+sum(!is.na(df$advise_4))/length(df$advise_4)
 t.test(df$advise_4, mu = 50)
 sd(df$advise_4, na.rm = T)
+
+# Reasoning
+# minus 2 for n/a and - in response
+(sum(!is.na(df$reasoning)) - 2)/length(df$reasoning)
 
 #==================================================================
 # Visualization
