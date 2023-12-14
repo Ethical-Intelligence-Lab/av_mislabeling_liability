@@ -217,12 +217,18 @@ t1 <- t.test(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'auto
               d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'], paired = FALSE)
 t1
 
+sd(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'auto'])
+sd(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
+
 cohen.d(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
         d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
 
 t2 <- t.test(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
               d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'], paired = FALSE)
 t2
+
+sd(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'])
+sd(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'])
 
 cohen.d(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
         d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'])
@@ -238,12 +244,18 @@ t1 <- t.test(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'aut
              d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'], paired = FALSE)
 t1
 
+sd(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'])
+sd(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
+
 cohen.d(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
        d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
 
 t2 <- t.test(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
               d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'co'], paired = FALSE)
 t2
+
+sd(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'auto'])
+sd(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'co'])
 
 cohen.d(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
         d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'co'])

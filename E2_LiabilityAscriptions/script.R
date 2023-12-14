@@ -166,10 +166,30 @@ d_merged |>
 # t-tests
 ## Perceived Level of Automation
 t.test(automation ~ cond, d_merged)
+
+sd(d_merged[d_merged$cond == "auto",]$automation)
+sd(d_merged[d_merged$cond == "co",]$automation)
+
+cohen.d(d_merged[d_merged$cond == "auto",]$automation,
+        d_merged[d_merged$cond == "co",]$automation)
+
 ## Human Liability
 t.test(human ~ cond, d_merged)
+
+sd(d_merged[d_merged$cond == "auto",]$human)
+sd(d_merged[d_merged$cond == "co",]$human)
+
+cohen.d(d_merged[d_merged$cond == "auto",]$human,
+        d_merged[d_merged$cond == "co",]$human)
+
 ## Firm Liability
 t.test(firm ~ cond, d_merged)
+
+sd(d_merged[d_merged$cond == "auto",]$firm)
+sd(d_merged[d_merged$cond == "co",]$firm)
+
+cohen.d(d_merged[d_merged$cond == "auto",]$firm,
+        d_merged[d_merged$cond == "co",]$firm)
  
 
 ## ================================================================================================================
