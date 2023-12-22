@@ -181,7 +181,7 @@ d |>
   gather(key = "DV", value = "Value", 
          time_control, behavior) |>
   mutate(
-    DV = ifelse( DV == "behavior", "Behavior", "Time Control"),
+    DV = ifelse( DV == "behavior", "Behavioral Intentions", "Time to Take Control"),
     `Marketing Label` = case_when(
       label == "auto" ~ "Autopilot",
       label == "co" ~ "Copilot"
@@ -232,10 +232,16 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Behavior", signif = c("**", "**", "ns"), yaxis=T) -> p1
+plot_did(dv = "Behavioral Intentions", signif = c("**", "**", "ns"), yaxis=T) -> p1
 p1
-plot_did(dv = "Time Control", signif = c("***", "**", "ns"), yaxis=T)  -> p2
-p2
+
+ggsave("behavioral.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+plot_did(dv = "Time to Take Control", signif = c("***", "**", "ns"), yaxis=T)  +
+  ylab("Response Time (s)") -> p2
+p2 
+
+ggsave("control_time.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
 #ggarrange(p2 + rremove("ylab") + rremove("xlab"),
 #          p1 + rremove("ylab") + rremove("xlab"),
