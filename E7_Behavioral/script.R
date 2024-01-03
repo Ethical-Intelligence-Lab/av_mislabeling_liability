@@ -47,8 +47,10 @@ df <- read_csv("data.csv")
 # Remove first two rows that were headers
 df <- df[-c(1,2),]
 
+# Numericize and only include those who finished
 df |>
-  mutate_if(all.is.numeric, as.numeric) -> df
+  mutate_if(all.is.numeric, as.numeric) |>
+  filter( Finished == 1) -> df
 
 # ATTENTION CHECKS
 n_initial <- nrow(df)
@@ -144,12 +146,15 @@ t3
 d_process <- d
 d_process$label <- as.numeric(as.factor(d_process$label))
 
+summary(lm(behavior ~ label + capability, d))
+summary(lm(time_control ~ label + capability, d))
+
 # BEHAVIOR
 process(data = d_process, y = "behavior", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
-process(data = d_process, y = "behavior", x = "label", w = "risk_aversion",
+process(data = d_process, y = "behavior", x = "label", w = c("risk_aversion"),
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
@@ -243,10 +248,3 @@ p2
 
 ggsave("control_time.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
-#ggarrange(p2 + rremove("ylab") + rremove("xlab"),
-#          p1 + rremove("ylab") + rremove("xlab"),
-#          ncol = 2, common.legend = TRUE) |>
-#  annotate_figure( left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface = "bold")),
-#                   bottom = textGrob("AV Safety Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
-
-#ggsave("av_safety_benefits.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
