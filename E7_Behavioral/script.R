@@ -133,12 +133,23 @@ d$risk_aversion <- rowMeans(d[, c("unsafe_self", "worried_self", "unsafe_others"
 t1 <- t.test(d[d$label == "auto",]$capability, d[d$label == "co",]$capability, paired = FALSE)
 t1
 
+cohen.d(d[d$label == "auto",]$capability, d[d$label == "co",]$capability)
+
 t2 <- t.test(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior, paired = FALSE)
 t2
+
+cohen.d(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior)
+
+sd(d[d$label == "auto",]$behavior)
+sd(d[d$label == "co",]$behavior)
 
 t3 <- t.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control, paired = FALSE)
 t3
 
+cohen.d(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
+
+sd(d[d$label == "auto",]$time_control)
+sd(d[d$label == "co",]$time_control)
 ## ================================================================================================================
 ##                                PROCESS              
 ## ================================================================================================================
@@ -186,7 +197,7 @@ d |>
   gather(key = "DV", value = "Value", 
          time_control, behavior) |>
   mutate(
-    DV = ifelse( DV == "behavior", "Behavioral Intentions", "Time to Take Control"),
+    DV = ifelse( DV == "behavior", "Behavioral Intention", "Time to Take Control"),
     `Marketing Label` = case_when(
       label == "auto" ~ "Autopilot",
       label == "co" ~ "Copilot"
@@ -199,7 +210,7 @@ d |>
   ) -> d_plot
 
 
-plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(100, 100, 114)) {
+plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(40)) {
   
   d_plot <- df |>
     filter(DV == dv)
@@ -215,10 +226,10 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
           plot.title = element_text(hjust = 0.5, face = "bold", size=10)
     ) +
-    #geom_signif(
-     # y_position = ypos, xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
-      #annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3.5 
-    #) +
+    geom_signif(
+      y_position = ypos, xmin = c(1.0), xmax = c(2.0),
+      annotation = signif, tip_length = 0.1, color='black', size = .25, textsize = 3.5 
+    ) +
     scale_fill_grey() +
     scale_color_grey() +
     ggtitle(dv) +
@@ -237,14 +248,47 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Behavioral Intentions", signif = c("**", "**", "ns"), yaxis=T) -> p1
+plot_did(dv = "Behavioral Intention", signif = c("*"), yaxis=T) -> p1
 p1
 
 ggsave("behavioral.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
-plot_did(dv = "Time to Take Control", signif = c("***", "**", "ns"), yaxis=T)  +
+plot_did(dv = "Time to Take Control", signif = c("**"), yaxis=T, ypos = 17)  +
   ylab("Response Time (s)") -> p2
 p2 
 
 ggsave("control_time.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
+ggarrange(p1 + ylab("Mean Rating") + rremove("xlab"),
+          p2+ rremove("xlab"),
+          ncol = 2, common.legend = TRUE)  |>
+  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = .8, fontface = "bold")))
+
+ggsave("behavior_time.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+
+d  |>
+  mutate(
+    `Marketing Label` = case_when(
+      label == "auto" ~ "Autopilot",
+      label == "co" ~ "Copilot"
+    )
+  ) -> d_density
+
+ggplot(data = d_density, aes(color =`Marketing Label`, x=time_control )) +
+  stat_density(geom="line", position="identity", alpha=.75) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, face = "bold", size=10), legend.position = 'top' ) + 
+  scale_color_grey() +
+  ylab("Density") +
+  xlab("Time to Take Control (s)") + 
+  annotate("rect", xmin = 6, xmax = 9, ymin = 0, ymax = .2,alpha = .1) +
+  annotate("text", x = 8, y = .08, label = "Vehicle approaches intersection", size = 2) +
+  annotate("rect", xmin = 15, xmax = 18, ymin = 0, ymax = .2,alpha = .1) +
+  annotate("text", x = 16, y = .19, label = "Vehicle approaches jaywalkers", size = 2) +
+  theme(legend.key = element_rect(fill = NA))
+
+ggsave("time_density.pdf", device = "pdf",width = 5.3, height = 3.7, units = "in")
+
+ks.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
