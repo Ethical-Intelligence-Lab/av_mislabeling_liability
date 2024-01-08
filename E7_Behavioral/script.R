@@ -150,6 +150,7 @@ cohen.d(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
 
 sd(d[d$label == "auto",]$time_control)
 sd(d[d$label == "co",]$time_control)
+
 ## ================================================================================================================
 ##                                PROCESS              
 ## ================================================================================================================
@@ -283,10 +284,10 @@ ggplot(data = d_density, aes(color =`Marketing Label`, x=time_control )) +
   scale_color_grey() +
   ylab("Density") +
   xlab("Time to Take Control (s)") + 
-  annotate("rect", xmin = 6, xmax = 9, ymin = 0, ymax = .2,alpha = .1) +
-  annotate("text", x = 8, y = .08, label = "Vehicle approaches intersection", size = 2) +
-  annotate("rect", xmin = 15, xmax = 18, ymin = 0, ymax = .2,alpha = .1) +
-  annotate("text", x = 16, y = .19, label = "Vehicle approaches jaywalkers", size = 2) +
+  annotate("rect", xmin = 5, xmax = 10, ymin = 0, ymax = .2,alpha = .1) +
+  annotate("text", x = 7.5, y = .08, label = "Vehicle approaches intersection", size = 2) +
+  annotate("rect", xmin = 15, xmax = 20, ymin = 0, ymax = .2,alpha = .1) +
+  annotate("text", x = 17.5, y = .19, label = "Vehicle approaches jaywalkers", size = 2) +
   theme(legend.key = element_rect(fill = NA))
 
 ggsave("time_density.pdf", device = "pdf",width = 5.3, height = 3.7, units = "in")
