@@ -173,6 +173,15 @@ sd(d_merged[d_merged$cond == "co",]$automation)
 cohen.d(d_merged[d_merged$cond == "auto",]$automation,
         d_merged[d_merged$cond == "co",]$automation)
 
+## Firm Liability
+t.test(firm ~ cond, d_merged)
+
+sd(d_merged[d_merged$cond == "auto",]$firm)
+sd(d_merged[d_merged$cond == "co",]$firm)
+
+cohen.d(d_merged[d_merged$cond == "auto",]$firm,
+        d_merged[d_merged$cond == "co",]$firm)
+
 ## Human Liability
 t.test(human ~ cond, d_merged)
 
@@ -182,14 +191,22 @@ sd(d_merged[d_merged$cond == "co",]$human)
 cohen.d(d_merged[d_merged$cond == "auto",]$human,
         d_merged[d_merged$cond == "co",]$human)
 
-## Firm Liability
-t.test(firm ~ cond, d_merged)
+## ================================================================================================================
+##                                          MEDIATION ANALYSIS               
+## ================================================================================================================
+d_merged$cond <- as.numeric(d_merged$cond)
 
-sd(d_merged[d_merged$cond == "auto",]$firm)
-sd(d_merged[d_merged$cond == "co",]$firm)
+## Simple Mediation
 
-cohen.d(d_merged[d_merged$cond == "auto",]$firm,
-        d_merged[d_merged$cond == "co",]$firm)
+process(data = d_merged, y = "firm", x = "cond", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+process(data = d_merged, y = "human", x = "cond", 
+        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+
  
 
 ## ================================================================================================================
@@ -264,21 +281,6 @@ ggarrange(p1,p2) |>
   annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = 1, fontsize=10, fontface="bold")))
 
 ggsave("liability_ascriptions.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-## ================================================================================================================
-##                                          MEDIATION ANALYSIS               
-## ================================================================================================================
-d_merged$cond <- as.numeric(d_merged$cond)
-
-## Simple Mediation
-
-process(data = d_merged, y = "human", x = "cond", 
-        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-process(data = d_merged, y = "firm", x = "cond", 
-        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
 
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 

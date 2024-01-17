@@ -178,22 +178,11 @@ hist(d_merged$age, main = "Histogram of Age", xlab = "Age")
 ## gender
 table(d_merged$gender)[1]/sum(table(d$gender)) ## percentage of males
 table(d_merged$gender)[2]/sum(table(d$gender)) ## percentage of females
-barplot(table(d_merged$gender), main = "BarPlot for Gender", names.arg = c("Male","Female","Undisclosed","Other"))
 
-## av knowledge
-mean(d_merged$ai_knowledge_1, trim = 0, na.rm = TRUE) ## mean av knowledge 
-hist(d$ai_knowledge, xlab = 'AI Knowledge', main = 'Histogram of AI Knowledge')
-
-## license
-table(d$license)[1]/sum(table(d$license)) ## percentage with driver's license
-
-table(d$license)[2]/sum(table(d$license)) ## percentage without driver's license
-barplot(table(d_merged$license), main = "BarPlot for License", names.arg = c("Yes","No"))
 
 ## ================================================================================================================
 ##                                                    Analysis                 
 ## ================================================================================================================
-
 
 cronbach.alpha(d_subset[, c("firm_responsibility","firm_liability")])
 cronbach.alpha(d_subset[, c("human_responsibility","human_liability")])
@@ -213,9 +202,21 @@ summary(firmliab_mod)
 anova_stats(firmliab_mod)
 
 ## t-tests
-t1 <- t.test(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
-              d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'], paired = FALSE)
+### Disclosure Absent
+t1 <- t.test(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
+             d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'], paired = FALSE)
 t1
+
+sd(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'])
+sd(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'])
+
+cohen.d(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
+        d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'])
+
+### Disclosure Present
+t2 <- t.test(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
+              d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'], paired = FALSE)
+t2
 
 sd(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'auto'])
 sd(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
@@ -223,15 +224,7 @@ sd(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
 cohen.d(d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
         d_merged$firm[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
 
-t2 <- t.test(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
-              d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'], paired = FALSE)
-t2
 
-sd(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'])
-sd(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'])
-
-cohen.d(d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
-        d_merged$firm[d_merged$disclosure == 'no'& d_merged$label == 'co'])
 
 # HUMAN LIABILITY
 ## ANOVA
@@ -240,25 +233,27 @@ summary(humaliab_mod)
 anova_stats(humaliab_mod)
 
 ## t-tests
-t1 <- t.test(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
-             d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'], paired = FALSE)
+### Disclosure Absent
+t1 <- t.test(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
+             d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'co'], paired = FALSE)
 t1
-
-sd(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'])
-sd(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
-
-cohen.d(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
-       d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
-
-t2 <- t.test(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
-              d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'co'], paired = FALSE)
-t2
 
 sd(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'auto'])
 sd(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'co'])
 
 cohen.d(d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'auto'],
         d_merged$human[d_merged$disclosure == 'no'& d_merged$label == 'co'])
+
+### Disclosure Present
+t2 <- t.test(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
+             d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'], paired = FALSE)
+t2
+
+sd(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'])
+sd(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
+
+cohen.d(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
+       d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'co'])
 
 
 ## ================================================================================================================
@@ -272,17 +267,6 @@ d_merged$cond = as.numeric(d_merged$cond)
 d_merged$disclosure = as.numeric(as.factor(d_merged$disclosure))
 d_merged$label = as.numeric(as.factor(d_merged$label))
 
-
-# HUMAN LIABILITY
-
-process(data = d_merged, y = "human", x = "label", 
-        m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-process(data = d_merged, y = "human", x = "label", 
-        m =c("automation"), w = "disclosure",model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
 # FIRM LIABILITY
 
 process(data = d_merged, y = "firm", x = "label", 
@@ -292,6 +276,18 @@ process(data = d_merged, y = "firm", x = "label",
 process(data = d_merged, y = "firm", x = "label", 
         m =c("automation"), w = "disclosure", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# HUMAN LIABILITY
+
+process(data = d_merged, y = "human", x = "label", 
+        m =c("automation"), model = 4, effsize      = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+process(data = d_merged, y = "human", x = "label", 
+        m =c("automation"), w = "disclosure",model = 14, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+
 
 ## ================================================================================================================
 ##                                              VISUALIZATION                

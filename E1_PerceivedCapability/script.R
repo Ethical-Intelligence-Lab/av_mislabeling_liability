@@ -24,7 +24,6 @@ library(effsize)
 ## read in data
 d <- read.csv('./data.csv') 
 
-d$FL_12_DO
 ## rename variables:
 d |>
   rename( cond = FL_12_DO ) |>

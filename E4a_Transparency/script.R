@@ -124,14 +124,7 @@ d |>
     as.numeric
   ) -> d
 
-cronbach.alpha(d[,c("resp_human", "liable_human")])
-cronbach.alpha(d[,c("resp_soft", "liable_firm")])
 
-d |>
-  mutate(
-    human = (resp_human + liable_human)/2,
-    firm = (resp_soft + liable_firm)/2
-  ) -> d
 
 
 ## ================================================================================================================
@@ -152,35 +145,19 @@ mean(gender$is_male)
 barplot(table(gender$gender_lab), main="Participants' Gender")
 rm(gender)
 
-## AV KNOWLEDGE
-mean(d$ai_knowledge) 
-hist(d$ai_knowledge, xlab = 'AI Knowledge', main = 'Histogram of AI Knowledge')
 
 
 ## ================================================================================================================
 ##                                              PARTICIPANT CHARACTERISTICS              
 ## ===============================================================================================================
+cronbach.alpha(d[,c("resp_human", "liable_human")])
+cronbach.alpha(d[,c("resp_soft", "liable_firm")])
 
-# HUMAN LIABILITY
-## ANOVA
-h_anova <- aov(human ~ as.factor(label) * as.factor(transparency), data = d)
-summary(h_anova)
-anova_stats(h_anova)
-
-## t-tests
-t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$human,
-             d[d$transparency == 'yes'& d$label == 'co',]$human, paired = FALSE)
-t1
-
-cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$human,
-       d[d$transparency == 'yes'& d$label == 'co',]$human)
-
-t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$human,
-             d[d$transparency == 'no' & d$label == 'co',]$human, paired = FALSE)
-t2
-
-cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$human,
-        d[d$transparency == 'no'& d$label == 'co',]$human)
+d |>
+  mutate(
+    human = (resp_human + liable_human)/2,
+    firm = (resp_soft + liable_firm)/2
+  ) -> d
 
 # FIRM LIABILITY
 ## ANOVA
@@ -189,19 +166,93 @@ summary(f_anova)
 anova_stats(f_anova)
 
 ## t-tests
+### Transparent Condition
 t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
-               d[d$transparency == 'yes'& d$label == 'co',]$firm, paired = FALSE)
+             d[d$transparency == 'yes'& d$label == 'co',]$firm, paired = FALSE)
 t1
 
+sd(d[d$transparency == 'yes'& d$label == 'auto',]$firm)
+sd(d[d$transparency == 'yes'& d$label == 'co',]$firm)
+
 cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
-       d[d$transparency == 'yes'& d$label == 'co',]$firm)
-       
+        d[d$transparency == 'yes'& d$label == 'co',]$firm)
+
+### Opaque Condition
 t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$firm,
-               d[d$transparency == 'no' & d$label == 'co',]$firm, paired = FALSE)
+             d[d$transparency == 'no' & d$label == 'co',]$firm, paired = FALSE)
 t2
+
+sd(d[d$transparency == 'no'& d$label == 'auto',]$firm)
+sd(d[d$transparency == 'no'& d$label == 'co',]$firm)
 
 cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$firm,
         d[d$transparency == 'no'& d$label == 'co',]$firm)
+
+# HUMAN LIABILITY
+## ANOVA
+h_anova <- aov(human ~ as.factor(label) * as.factor(transparency), data = d)
+summary(h_anova)
+anova_stats(h_anova)
+
+## t-tests
+### Transparent Condition
+t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$human,
+             d[d$transparency == 'yes'& d$label == 'co',]$human, paired = FALSE)
+t1
+
+sd(d[d$transparency == 'yes'& d$label == 'auto',]$human)
+sd(d[d$transparency == 'yes'& d$label == 'co',]$human)
+
+cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$human,
+       d[d$transparency == 'yes'& d$label == 'co',]$human)
+
+### Opaque Condition
+t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$human,
+             d[d$transparency == 'no' & d$label == 'co',]$human, paired = FALSE)
+t2
+
+sd(d[d$transparency == 'no' & d$label == 'auto',]$human)
+sd(d[d$transparency == 'no' & d$label == 'co',]$human)
+
+cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$human,
+        d[d$transparency == 'no'& d$label == 'co',]$human)
+
+## ================================================================================================================
+##                                                 PROCESS ANALYSIS              
+## ================================================================================================================
+source('../process.R')
+
+d |>
+  mutate_at( c("transparency", "label"), as.factor) |>
+  mutate_at( c("transparency", "label"), as.numeric) -> d_process
+
+## NOTE
+### - transparency no ~ 1, yes ~ 2
+### - label auto ~ 1, co ~ 2
+
+# SIMPLE MEDIATION
+## FIRM LIABILITY
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+## HUMAN LIABILITY
+process(data = d_process, y = "human", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+# MODERATED MEDIATION
+## FIRM LIABILITY
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+## HUMAN LIABILITY
+process(data = d_process, y = "human", x = "label", 
+        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+
 
 ## ================================================================================================================
 ##                                                 VISUALIZATION              
@@ -277,52 +328,6 @@ p
 
 ggsave("firm_transparency.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
-# TPM
-
-plot_did(dv = "Firm Liability", signif = c("*", "ns", "+"), ypos = c(55,55,94))  -> p2
-p2 + theme(legend.position = "top",
-           text = element_text(face="bold"),
-           plot.title = element_text(size=15)) +
-  scale_fill_manual(values=c("#A41034", "#000000")) +
-  scale_y_continuous(limits = c(0,60), breaks = c(0,20,40,60))  +
-  ylab("Mean Liability")
-
-ggsave("rb_firm_transparency.pdf", device = "pdf",width = 3.7, height = 3.7, units = "in")
-
-## ================================================================================================================
-##                                                 PROCESS ANALYSIS              
-## ================================================================================================================
-source('../process.R')
-
-d |>
-  mutate_at( c("transparency", "label"), as.factor) |>
-  mutate_at( c("transparency", "label"), as.numeric) -> d_process
-
-## NOTE
-### - transparency no ~ 1, yes ~ 2
-### - label auto ~ 1, co ~ 2
-
-# SIMPLE MEDIATION
-## FIRM LIABILITY
-process(data = d_process, y = "firm", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-## HUMAN LIABILITY
-process(data = d_process, y = "human", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-# MODERATED MEDIATION
-## FIRM LIABILITY
-process(data = d_process, y = "firm", x = "label", 
-        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-## HUMAN LIABILITY
-process(data = d_process, y = "human", x = "label", 
-        m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## ================================================================================================================
 ##                                                 END OF ANALYSIS              
