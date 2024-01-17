@@ -116,11 +116,6 @@ cronbach.alpha(d[,c("r_human", "l_human")])
 d$firm <- rowMeans(d[,c("r_soft", "l_firm")])
 d$human <- rowMeans(d[,c("r_human", "l_human")])
 
-# CAPABILITY
-a <- aov(capability ~ as.factor(label) * as.factor(benefits), data = d)
-summary(a)
-anova_stats(a)
-
 # FIRM
 a <- aov(firm ~ as.factor(label) * as.factor(benefits), data = d)
 summary(a)
@@ -174,7 +169,6 @@ cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
         d[d$benefits == 'Absent' & d$label == 'co',]$human)
 
 # Benefit FIRM
-
 t1 <- t.test(d[d$benefits == 'Present',]$firm,
              d[d$benefits == 'Absent',]$firm, paired = FALSE)
 t1
@@ -209,6 +203,7 @@ d_process$benefits <- as.numeric(as.factor(d_process$benefits))
 process(data = d_process, y = "firm", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
 # HUMAN COMBINED
 process(data = d_process, y = "human", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
@@ -295,8 +290,3 @@ ggarrange(p2 + rremove("ylab") + rremove("xlab"),
 
 ggsave("human_safety_risks.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
-p2 + scale_fill_manual(values=c("#A41034", "#000000")) +
-  theme(text = element_text(face = "bold"), legend.position = "top") +
-  ggtitle("")
-
-ggsave("rb_human_safety_risks.jpg", device = "jpg",width = 3.7, height = 3.7, units = "in")

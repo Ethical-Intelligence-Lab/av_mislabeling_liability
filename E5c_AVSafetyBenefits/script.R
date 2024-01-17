@@ -115,11 +115,6 @@ cronbach.alpha(d[,c("r_human", "l_human")])
 d$firm <- rowMeans(d[,c("r_soft", "l_firm")])
 d$human <- rowMeans(d[,c("r_human", "l_human")])
 
-# CAPABILITY
-a <- aov(capability ~ as.factor(label) * as.factor(benefits), data = d)
-summary(a)
-anova_stats(a)
-
 # FIRM
 a <- aov(firm ~ as.factor(label) * as.factor(benefits), data = d)
 summary(a)
@@ -145,6 +140,17 @@ sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
 cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
         d[d$benefits == 'Absent' & d$label == 'co',]$firm)
+
+# Direct Effect of Benefits FIRM
+t1 <- t.test(d[d$benefits == 'Present',]$firm,
+             d[d$benefits == 'Absent',]$firm, paired = FALSE)
+t1
+
+sd(d[d$benefits == 'Present',]$firm)
+sd(d[d$benefits == 'Absent',]$firm)
+
+cohen.d(d[d$benefits == 'Present',]$firm,
+        d[d$benefits == 'Absent',]$firm)
 
 
 # HUMAN
@@ -172,19 +178,7 @@ sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
 cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
         d[d$benefits == 'Absent' & d$label == 'co',]$human)
 
-# Benefit FIRM
-
-t1 <- t.test(d[d$benefits == 'Present',]$firm,
-             d[d$benefits == 'Absent',]$firm, paired = FALSE)
-t1
-
-sd(d[d$benefits == 'Present',]$firm)
-sd(d[d$benefits == 'Absent',]$firm)
-
-cohen.d(d[d$benefits == 'Present',]$firm,
-       d[d$benefits == 'Absent',]$firm)
-
-# Benefit HUMAN
+# Direct Effect of Benefits HUMAN
 
 t2 <- t.test(d[d$benefits == 'Present',]$human,
              d[d$benefits == 'Absent',]$human, paired = FALSE)

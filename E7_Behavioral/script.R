@@ -130,21 +130,18 @@ d$risk_aversion <- rowMeans(d[, c("unsafe_self", "worried_self", "unsafe_others"
                                   "likely_others", "likely_self", "concern_others", "concern_self")])
 
 
-t1 <- t.test(d[d$label == "auto",]$capability, d[d$label == "co",]$capability, paired = FALSE)
+# Distracted Intentions
+t1 <- t.test(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior, paired = FALSE)
 t1
-
-cohen.d(d[d$label == "auto",]$capability, d[d$label == "co",]$capability)
-
-t2 <- t.test(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior, paired = FALSE)
-t2
 
 cohen.d(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior)
 
 sd(d[d$label == "auto",]$behavior)
 sd(d[d$label == "co",]$behavior)
 
-t3 <- t.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control, paired = FALSE)
-t3
+# Time to Take Control
+t2 <- t.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control, paired = FALSE)
+t2
 
 cohen.d(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
 
@@ -157,9 +154,6 @@ sd(d[d$label == "co",]$time_control)
 
 d_process <- d
 d_process$label <- as.numeric(as.factor(d_process$label))
-
-summary(lm(behavior ~ label + capability, d))
-summary(lm(time_control ~ label + capability, d))
 
 # BEHAVIOR
 process(data = d_process, y = "behavior", x = "label", 
@@ -293,18 +287,3 @@ ggplot(data = d_density, aes(color =`Marketing Label`, x=time_control )) +
 ggsave("time_density.pdf", device = "pdf",width = 5.3, height = 3.7, units = "in")
 
 ks.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
-
-# TPM Conference
-
-p1 + 
-  theme(text = element_text(face = "bold")) +
-  ggtitle("Willingness to Engage in Distracted Driving") +
-  ylab("Mean Agreement")
-
-ggsave("tpm_behavioral.pdf", device = "pdf",width = 3.7, height = 3.7, units = "in")
-
-p2 + 
-  theme(text = element_text(face = "bold")) 
-
-ggsave("tpm_controltime.pdf", device = "pdf",width = 3.7, height = 3.7, units = "in")
-

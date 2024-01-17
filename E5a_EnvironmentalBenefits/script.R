@@ -105,18 +105,13 @@ mean(d$age) # filtering the ones who put year
 prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 
 ## ================================================================================================================
-##                                ANALYSIS              
+##                                      ANALYSIS              
 ## ================================================================================================================
 cronbach.alpha(d[,c("r_soft", "l_firm")])
 cronbach.alpha(d[,c("r_human", "l_human")])
 
 d$firm <- rowMeans(d[,c("r_soft", "l_firm")])
 d$human <- rowMeans(d[,c("r_human", "l_human")])
-
-# CAPABILITY
-a <- aov(capability ~ as.factor(label) * as.factor(benefits), data = d)
-summary(a)
-anova_stats(a)
 
 # FIRM
 a <- aov(firm ~ as.factor(label) * as.factor(benefits), data = d)

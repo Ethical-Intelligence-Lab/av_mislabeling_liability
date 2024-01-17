@@ -13,7 +13,6 @@ library(ggpubr)
 library(ggsignif)
 library(knitr)
 library(pander)
-#source('../e2_liability/process.R')
 
 # Read full dataset
 df <- read_csv("data.csv")
@@ -29,7 +28,7 @@ df |>
     att_1 == 2,
     att_2 == 2) -> df
 
-n_original <- length(df$StartDate)
+n_original <- nrow(df)
 
 ## Comprehension Checks
 df |>
@@ -38,7 +37,7 @@ df |>
     comp_2 == 4
   ) -> df
 
-n_excluded <- n_original - length(df$StartDate)
+n_excluded <- n_original - nrow(df)
 
 prop_excluded <- n_excluded / n_original
 
@@ -170,9 +169,6 @@ p
 
 ggsave("participants_responses.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
-p + scale_fill_manual(values=c("#A41034", "#000000"))
-
-ggsave("rb_participants_responses.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
 wc <- read_csv("word_count.csv")
 wc |>
