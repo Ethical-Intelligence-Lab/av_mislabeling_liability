@@ -164,9 +164,15 @@ ggplot(data = df_plot, aes(x=`Level of Automation`, y = count, fill = Found)) +
   scale_y_discrete(
     name = "Number of Responses",
     limits = 0:10
-  ) 
+  ) -> p
+
+p
 
 ggsave("participants_responses.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+p + scale_fill_manual(values=c("#A41034", "#000000"))
+
+ggsave("rb_participants_responses.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
 wc <- read_csv("word_count.csv")
 wc |>

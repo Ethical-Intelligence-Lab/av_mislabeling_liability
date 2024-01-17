@@ -96,3 +96,39 @@ c <- paste(coded$code, collapse = ",")
 c <- strsplit(c, ",")
 
 table(c)
+
+## ================================================================================================================
+##                                TPM             
+## ================================================================================================================
+
+df |>
+  drop_na(adjust_4, risk_4) |>
+  select(adjust_4, risk_4) |>
+  gather(key = "Var", value = "value", adjust_4, risk_4) |>
+  group_by(Var) |>
+  dplyr::summarize(mean = mean(value),
+                   se = sd(value)/sqrt(n())) -> df_plot
+
+df_plot$Var <- c("Affect Premiums", "Increase Risk Estimates")
+
+se_width <- 1.96
+
+ggplot(data = df_plot, aes(x=Var, y=mean)) +
+  geom_bar(stat="identity", position="dodge", alpha=.75) +
+  geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = position_dodge(width=.9), 
+                size=.25, color="black", width=.5) +
+  geom_point(aes(y=mean),position=position_dodge(width = .9), size=.5, color="black") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, face = "bold", size=15), text = element_text(face = "bold") 
+  ) +
+  scale_fill_grey() +
+  scale_color_grey() + 
+  scale_y_continuous(limits = c(0,80), breaks = c(0,25,50,75,100)) +
+  ylab("Response") +
+  xlab("") +
+  ggtitle("Marketing Label and Insurance") -> p
+
+p
+
+ggsave("insurance_q.pdf", device = "pdf")

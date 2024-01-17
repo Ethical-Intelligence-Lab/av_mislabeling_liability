@@ -297,7 +297,7 @@ d_plot |>
     )
   ) |>
   group_by(Condition, Measure) |>
-  summarize(
+  dplyr::summarize(
     Mean = mean(Response),
     SE = sd(Response)/sqrt(n()),
     SD = sd(Response)
@@ -334,7 +334,8 @@ plot_bar <- function(df=d_plot, dv, y_pos, signif=c("*","*","*"), titulo) {
 plot_bar(dv = "Perceived Automation", y_pos = c(6, 6.75, 7.5),
          signif = c("***", "ns", "***"), 
          titulo = "Perceived Level of Automation") -> a1
-a1
+
+a1 
 
 ggsave("perceived_automation.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 

@@ -277,6 +277,17 @@ p
 
 ggsave("firm_transparency.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
+# TPM
+
+plot_did(dv = "Firm Liability", signif = c("*", "ns", "+"), ypos = c(55,55,94))  -> p2
+p2 + theme(legend.position = "top",
+           text = element_text(face="bold"),
+           plot.title = element_text(size=15)) +
+  scale_fill_manual(values=c("#A41034", "#000000")) +
+  scale_y_continuous(limits = c(0,60), breaks = c(0,20,40,60))  +
+  ylab("Mean Liability")
+
+ggsave("rb_firm_transparency.pdf", device = "pdf",width = 3.7, height = 3.7, units = "in")
 
 ## ================================================================================================================
 ##                                                 PROCESS ANALYSIS              

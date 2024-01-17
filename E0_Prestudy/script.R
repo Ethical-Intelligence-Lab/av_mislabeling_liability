@@ -8,6 +8,7 @@ rm(list = ls())
 
 # Import libraries required
 library(tidyverse)
+library(ltm)
 library(readxl)
 
 # =====================================================================================
@@ -57,3 +58,5 @@ df |>
   group_by(Journal) |>
   summarize( prop = mean(mismarketing),
              count = sum(mismarketing)) -> prop
+
+prop

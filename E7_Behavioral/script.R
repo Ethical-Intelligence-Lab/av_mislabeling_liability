@@ -250,18 +250,18 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(40
 }
 
 plot_did(dv = "Behavioral Intention", signif = c("*"), yaxis=T) -> p1
-p1
+p1 + theme(text = element_text(face = "bold")) 
 
 ggsave("behavioral.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
 plot_did(dv = "Time to Take Control", signif = c("**"), yaxis=T, ypos = 17)  +
   ylab("Response Time (s)") -> p2
-p2 
+p2 + theme(text = element_text(face = "bold"))
 
 ggsave("control_time.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
-ggarrange(p1 + ylab("Mean Rating") + rremove("xlab"),
-          p2+ rremove("xlab"),
+ggarrange(p1 + ylab("Mean Rating") + rremove("xlab") + theme(text = element_text(face = "bold")),
+          p2+ rremove("xlab") + theme(text = element_text(face = "bold")),
           ncol = 2, common.legend = TRUE)  |>
   annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = .8, fontface = "bold")))
 
@@ -293,3 +293,18 @@ ggplot(data = d_density, aes(color =`Marketing Label`, x=time_control )) +
 ggsave("time_density.pdf", device = "pdf",width = 5.3, height = 3.7, units = "in")
 
 ks.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
+
+# TPM Conference
+
+p1 + 
+  theme(text = element_text(face = "bold")) +
+  ggtitle("Willingness to Engage in Distracted Driving") +
+  ylab("Mean Agreement")
+
+ggsave("tpm_behavioral.pdf", device = "pdf",width = 3.7, height = 3.7, units = "in")
+
+p2 + 
+  theme(text = element_text(face = "bold")) 
+
+ggsave("tpm_controltime.pdf", device = "pdf",width = 3.7, height = 3.7, units = "in")
+

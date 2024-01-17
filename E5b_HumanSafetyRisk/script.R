@@ -294,3 +294,9 @@ ggarrange(p2 + rremove("ylab") + rremove("xlab"),
                    bottom = textGrob("Human Safety Risks Condition", gp = gpar(cex = .8, fontface = "bold")))
 
 ggsave("human_safety_risks.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+p2 + scale_fill_manual(values=c("#A41034", "#000000")) +
+  theme(text = element_text(face = "bold"), legend.position = "top") +
+  ggtitle("")
+
+ggsave("rb_human_safety_risks.jpg", device = "jpg",width = 3.7, height = 3.7, units = "in")
