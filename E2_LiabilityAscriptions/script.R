@@ -7,7 +7,6 @@
 rm(list = ls()) 
 
 ## install packages
-library(ggpubr)
 library(dplyr)
 library(grid)
 if (!require(pacman)) {install.packages("pacman")}
@@ -38,6 +37,7 @@ pacman::p_load('ggplot2',         # plotting
 ## ================================================================================================================
 
 ## read in data
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 d <- read.csv('data.csv') 
 source("../process.R")
 
@@ -89,7 +89,10 @@ d <- subset(d, (d$Finished == 1))
 n_final <- dim(d)[[1]] # extracting number of rows only, not columns
 n_final 
 
-percent_excluded <- (n_original - n_final)/n_original 
+# n_excluded
+n_excluded <- n_original - n_final; n_excluded
+
+percent_excluded <- (n_excluded)/n_original 
 percent_excluded
 
 table(d$cond)
@@ -217,7 +220,7 @@ process(data = d_merged, y = "human", x = "cond",
 d_merged |>
   select(cond, automation, firm, human) |>
   mutate(
-    `Marketing Label` = ifelse(cond == "auto", "Autopilot", "Copilot"),
+    `Marketing Label` = ifelse(cond == 1, "Autopilot", "Copilot"),
     Firm = firm,
     Human = human
   ) |>

@@ -43,6 +43,7 @@ source('../process.r')
 ## ================================================================================================================
 
 # Read full dataset
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 df <- read_csv("data.csv")
 # Remove first two rows that were headers
 df <- df[-c(1,2),]

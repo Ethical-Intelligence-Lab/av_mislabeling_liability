@@ -22,7 +22,8 @@ library(effsize)
 ## ================================================================================================================
 
 ## read in data
-d <- read.csv('./data.csv') 
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+d <- read.csv('data.csv') 
 
 ## rename variables:
 d |>

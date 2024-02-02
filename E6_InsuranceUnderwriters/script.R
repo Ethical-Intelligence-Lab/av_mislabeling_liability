@@ -22,12 +22,6 @@ pacman::p_load('tidyverse',       # most stuff
                'emmeans',         # contrast analysis for regression models
                'stats',           # use function to adjust for multiple comparisons
                'filesstrings',    # create and move files
-               'simr',            # power analysis for mixed models
-               'compute.es',      # effect size package
-               'effsize',         # another effect size package
-               'pwr',             # package for power calculation
-               'nlme',            # get p values for mixed effect model
-               'DescTools',        # get Cramer's V
                'rstatix',
                'effects',
                "Hmisc", 
@@ -39,6 +33,7 @@ pacman::p_load('tidyverse',       # most stuff
 ## ================================================================================================================
 
 # Read full dataset
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 df <- read_csv("data.csv")
 # Remove first two rows that were headers
 df <- df[-c(1,2),]

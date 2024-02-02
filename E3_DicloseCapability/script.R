@@ -9,10 +9,7 @@ rm(list = ls())
 options(download.file.method="libcurl")
 
 ## install packages
-library(ggpubr)
 library(dplyr)
-library(sjstats)
-library(ggpubr)
 library(grid)
 if (!require(pacman)) {install.packages("pacman")}
 pacman::p_load('ggplot2',         # plotting
@@ -34,7 +31,8 @@ pacman::p_load('ggplot2',         # plotting
                'nlme',            # get p values for mixed effect model
                'DescTools',        # get Cramer's V
                'rstatix',
-               'effects'
+               'effects',
+               'sjstats'
 )
 
 ## ================================================================================================================
@@ -43,7 +41,8 @@ pacman::p_load('ggplot2',         # plotting
 
 ## read in data: 
 # set working directory to current directory
-d <- read.csv('./data.csv') 
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+d <- read.csv('data.csv') 
 
 ## rename variables:
 names(d)[names(d) == 'FL_12_DO'] <- 'cond'
@@ -84,6 +83,11 @@ dim(d)[1] # extracting number of rows only, not columns
 # remove responses from data frame that failed attention checks
 d <- subset(d, (d$att_1 == 2 & d$att_2 == 2))
 dim(d) # number of participants should decrease after attention exclusions
+
+## incomplete responses
+d <- subset(d, (d$Finished == 1))
+dim(d)
+
 n_original <- dim(d)[1]
 
 ## comprehension exclusions: 
@@ -93,13 +97,11 @@ dim(d) # number of participants should decrease after comprehension exclusions
 d <- subset(d, (d$comp_3 == 2 | d$comp_4 == 1 | d$comp_5 == 2 | d$comp_6 == 1 | d$comp_7 == 1 | d$comp_8 == 1))
 dim(d)
 
-## incomplete responses
-d <- subset(d, (d$Finished == 1))
-dim(d)
 
 ## number of participants AFTER exclusions: 
 n_final <- dim(d)[1] # extracting number of rows only, not columns
-n_final 
+n_final; n_original - n_final
+
 percent_excluded <- (n_original - n_final)/n_original 
 percent_excluded
 table(d$cond)

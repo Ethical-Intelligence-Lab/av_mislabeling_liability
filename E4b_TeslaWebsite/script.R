@@ -6,15 +6,18 @@
 ## clear workspace
 rm(list = ls())
 
-# libraries
-library(sjstats)
-library(tidyverse)
-library(ggpubr)
-library(ggsignif)
-library(knitr)
-library(pander)
+if (!require(pacman)) {install.packages("pacman")}
+pacman::p_load('tidyverse',   
+               'ggpubr',         
+               'ggsignif', 
+               'knitr',       
+               'wordcloud2',
+               'tidytext',
+               'tm'
+)
 
 # Read full dataset
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 df <- read_csv("data.csv")
 # Remove first two rows that were headers
 df <- df[-c(1,2),]
@@ -30,6 +33,13 @@ df |>
 
 n_original <- nrow(df)
 
+## Check the percentage that clicked
+percentage_clicked <- mean(as.numeric(df$clicked))
+percentage_clicked
+
+## Remove those who did not
+df <- df[df$clicked == 1,]
+
 ## Comprehension Checks
 df |>
   filter(
@@ -37,17 +47,14 @@ df |>
     comp_2 == 4
   ) -> df
 
-n_excluded <- n_original - nrow(df)
-
+## Number and proportion excluded
+n_excluded <- n_original - nrow(df); n_excluded
 prop_excluded <- n_excluded / n_original
 
-percentage_clicked <- mean(as.numeric(df$clicked))
-percentage_clicked
-
-df <- df[df$clicked == 1,]
-
+## Write the file out for wordcloud generation
+text_responses <- df$words_1
 word_cloud <- file("wordCloud.txt", "wb")
-writeBin( paste(df$words_1, collapse="\n"), word_cloud ) 
+writeBin( paste(text_responses, collapse="\n"), word_cloud ) 
 close(word_cloud)
 
 # Relevant Columns and Elongate Data
@@ -72,7 +79,7 @@ rm(found, not_found)
 
 df |>
   dplyr::summarize_all(as.numeric) |>
-  mutate( found = ifelse(found == 1, TRUE, FALSE ))-> df
+  mutate( found = ifelse(found == 1, TRUE, FALSE )) -> df
 
 ## ================================================================================================================
 ##                                Participant Characteristics               
@@ -84,7 +91,8 @@ hist(df$age, main = "Age Distribution")
 ## Gender
 n_male <- length(df[df$gender == 1,]$gender)
 n_female <- length(df[df$gender == 2,]$gender)
-prop_female <- n_female / (n_male + n_female)
+prop_female <- n_female / (n_male + n_female); prop_female
+
 rm(n_male, n_female, prop_female)
 
 ## AI Knowledge
@@ -99,7 +107,7 @@ prop.table(table(df$license))
 ## ================================================================================================================
 df$is_correct <- df$auto_level == 2
 
-mean(df$auto_level > 3)
+mean(df$auto_level >= 3)
 
 prop_correct <- mean(df$is_correct)
 prop_correct
@@ -150,6 +158,7 @@ df_plot |>
   mutate( Found = ifelse(found == 1, "TRUE", FALSE),
           `Level of Automation` = auto_level) -> df_plot
 
+## Participant Responses
 ggplot(data = df_plot, aes(x=`Level of Automation`, y = count, fill = Found)) +
   geom_bar(stat="identity", position="dodge", alpha = .75) +
   scale_fill_grey() +
@@ -169,7 +178,7 @@ p
 
 ggsave("participants_responses.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
-
+## Word Count
 wc <- read_csv("word_count.csv")
 wc |>
   arrange(desc(count)) -> wc
@@ -182,3 +191,21 @@ ggplot(wc, aes( x=count, y = reorder(word, (count)))) +
   theme(axis.title = element_text(face="bold", size=10), axis.text = element_text(face="bold", size=10))
 
 ggsave("word_count.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+
+# WORDCLOUD
+text_responses <- sapply(text_responses, function(i) gsub('[[:punct:] ]+',' ', i))
+text_responses <- sapply(text_responses, function(i) gsub('[0-9]','', i))
+
+word_freq <- as.matrix(TermDocumentMatrix(paste0(text_responses, collapse = ' ')))
+
+stopWords <- stopwords("en")
+
+word_freq <- as.data.frame(word_freq)
+word_freq$term <- rownames(word_freq)
+colnames(word_freq) <- c("freq", "word")
+word_freq <- word_freq[!(word_freq$word %in% stopWords),]
+
+word_freq <- word_freq[, c("word", "freq")]
+
+wordcloud2(word_freq)

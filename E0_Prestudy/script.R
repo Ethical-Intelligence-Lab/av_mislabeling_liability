@@ -14,6 +14,7 @@ library(readxl)
 # =====================================================================================
 # Read XLSX files
 # =====================================================================================
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 nyt <- read_xlsx("./data/ArticleCoding - New York Times.xlsx", sheet = "Articles", skip = 2)
 usa <- read_xlsx("./data/ArticleCoding - USA Today.xlsx", sheet = 2, skip = 3)
@@ -57,6 +58,7 @@ df |>
   ) |>
   group_by(Journal) |>
   summarize( prop = mean(mismarketing),
-             count = sum(mismarketing)) -> prop
+             count = sum(mismarketing),
+             num_documents = n()) -> prop
 
 prop

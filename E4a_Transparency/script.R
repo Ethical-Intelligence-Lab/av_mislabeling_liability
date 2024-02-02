@@ -9,16 +9,13 @@ rm(list = ls())
 options(download.file.method="libcurl")
 
 ## install packages
-library(ggpubr)
-library(dplyr)
-library(sjstats)
 if (!require(pacman)) {install.packages("pacman")}
 pacman::p_load('ggplot2',         # plotting
                'ggsignif',        # plotting significance bars
                'lme4',            # functions for fitting linear regression models
                'ggforce',         # make ggplot even fancier
                'ggpubr',          # arrange plots in a grid, if needed
-               'ltm',             # probably not using..
+               'ltm',             
                'tidyr',           # tools for cleaning messy data
                'stringr',         # perform string substitutions easily
                'assertthat',      # allows me to check whether a variable is a string, with is.string
@@ -34,7 +31,8 @@ pacman::p_load('ggplot2',         # plotting
                'rstatix',
                'effects',
                "tidyverse",
-               "grid"
+               "grid",
+               'sjstats'
 )
 
 ## ================================================================================================================
@@ -42,6 +40,7 @@ pacman::p_load('ggplot2',         # plotting
 ## ================================================================================================================
 
 # Read full dataset
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 df <- read_csv("data.csv")
 # Remove first two rows that were headers
 df <- df[-c(1,2),]
