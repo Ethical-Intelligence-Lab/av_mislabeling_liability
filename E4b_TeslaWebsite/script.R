@@ -191,21 +191,3 @@ ggplot(wc, aes( x=count, y = reorder(word, (count)))) +
   theme(axis.title = element_text(face="bold", size=10), axis.text = element_text(face="bold", size=10))
 
 ggsave("word_count.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-
-
-# WORDCLOUD
-text_responses <- sapply(text_responses, function(i) gsub('[[:punct:] ]+',' ', i))
-text_responses <- sapply(text_responses, function(i) gsub('[0-9]','', i))
-
-word_freq <- as.matrix(TermDocumentMatrix(paste0(text_responses, collapse = ' ')))
-
-stopWords <- stopwords("en")
-
-word_freq <- as.data.frame(word_freq)
-word_freq$term <- rownames(word_freq)
-colnames(word_freq) <- c("freq", "word")
-word_freq <- word_freq[!(word_freq$word %in% stopWords),]
-
-word_freq <- word_freq[, c("word", "freq")]
-
-wordcloud2(word_freq)
