@@ -134,7 +134,7 @@ cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
        d[d$benefits == 'Present' & d$label == 'co',]$firm)
 
 t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
-                d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
+             d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
 t2
 
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
