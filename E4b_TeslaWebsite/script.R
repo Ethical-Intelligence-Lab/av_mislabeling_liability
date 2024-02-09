@@ -31,14 +31,9 @@ df |>
     att_1 == 2,
     att_2 == 2) -> df
 
-n_original <- nrow(df)
 
-## Check the percentage that clicked
-percentage_clicked <- mean(as.numeric(df$clicked))
-percentage_clicked
-
-## Remove those who did not
-df <- df[df$clicked == 1,]
+## Number of recruited
+n_original <- nrow(df); n_original
 
 ## Comprehension Checks
 df |>
@@ -47,15 +42,41 @@ df |>
     comp_2 == 4
   ) -> df
 
-## Number and proportion excluded
-n_excluded <- n_original - nrow(df); n_excluded
-prop_excluded <- n_excluded / n_original
+## Check the percentage that clicked
+percentage_clicked <- mean(as.numeric(df$clicked))
+percentage_clicked
+
+## Remove those who did not
+df <- df[df$clicked == 1,]
+
+## Final number of participants
+n_final <- nrow(df); n_final
+## Number of excluded
+n_excluded <- n_original - n_final; n_excluded
+
+## ================================================================================================================
+##                                Participant Characteristics               
+## ================================================================================================================
+## Age
+mean(as.numeric(df$age), na.rm = T)
+
+## Gender
+n_male <- length(df[df$gender == 1,]$gender)
+n_female <- length(df[df$gender == 2,]$gender)
+prop_female <- n_female / (n_male + n_female); prop_female
+
+rm(n_male, n_female, prop_female)
+
+## ================================================================================================================
+##                                Pre-processing               
+## ================================================================================================================
 
 ## Write the file out for wordcloud generation
 text_responses <- df$words_1
 word_cloud <- file("wordCloud.txt", "wb")
 writeBin( paste(text_responses, collapse="\n"), word_cloud ) 
 close(word_cloud)
+
 
 # Relevant Columns and Elongate Data
 rel_col <- c("level_1", "level_2", "hard_1_1", "info_text", "level_3", "gender", "age", "license", "ai_knowledge_1")
@@ -79,62 +100,35 @@ rm(found, not_found)
 
 df |>
   dplyr::summarize_all(as.numeric) |>
-  mutate( found = ifelse(found == 1, TRUE, FALSE )) -> df
+  mutate( found = ifelse(found == 1, TRUE, FALSE),
+          is_correct = ifelse(auto_level == 2, TRUE, FALSE),
+          found_label = ifelse(found, "Found", "Not Found"), 
+          is_correct_label = ifelse(is_correct, "Correct", "Wrong")) -> df
 
-## ================================================================================================================
-##                                Participant Characteristics               
-## ================================================================================================================
-## Age
-mean(df$age, rm.na = T)
-hist(df$age, main = "Age Distribution")
-
-## Gender
-n_male <- length(df[df$gender == 1,]$gender)
-n_female <- length(df[df$gender == 2,]$gender)
-prop_female <- n_female / (n_male + n_female); prop_female
-
-rm(n_male, n_female, prop_female)
-
-## AI Knowledge
-mean(df$ai_knowledge, rm.na = T)
-hist(df$ai_knowledge, main = "Distribution of AI Knowledge")
-
-## License
-prop.table(table(df$license))
 
 ## ================================================================================================================
 ##                                      Analysis               
 ## ================================================================================================================
-df$is_correct <- df$auto_level == 2
 
+## Proportion that claimed to have found the level of automation
+prop_found <- mean(df$found); prop_found
+
+## Proportion that is correct
+prop_correct <- mean(df$is_correct); prop_correct
+
+## Proportion reporting Level 3 or higher
 mean(df$auto_level >= 3)
 
-prop_correct <- mean(df$is_correct)
-prop_correct
+## t-test for those who found vs not found
+t.test(df[df$found,]$auto_level, df[!df$found,]$auto_level)
 
-prop_found <- mean(df$found)
-prop_found
+sd(df[df$found,]$auto_level)
+sd(df[!df$found,]$auto_level)
 
-df$found_label <- ifelse(df$found, "Found", "Not Found")
-df$is_correct_label <- ifelse(df$is_correct, "Correct", "Wrong")
+## Difficulty == 50? 
+t.test(df[!is.na(df$difficulty),]$difficulty , mu = 50)
+sd(df[!is.na(df$difficulty),]$difficulty )
 
-# prop correct by if found
-tabulate <- table(df$found_label, df$is_correct_label)
-tabulate
-
-# t-test for those who found vs not found
-found_auto_level <- df[df$found,]$auto_level
-notfound_auto_level <- df[!df$found,]$auto_level
-
-sd(found_auto_level)
-sd(notfound_auto_level)
-t.test(found_auto_level, notfound_auto_level)
-
-# Difficulty == 50? 
-difficulty <- df[!is.na(df$difficulty),]$difficulty 
-
-sd(difficulty)
-t.test(difficulty, mu = 50)
 
 ## ================================================================================================================
 ##                                VISUALIZATION               

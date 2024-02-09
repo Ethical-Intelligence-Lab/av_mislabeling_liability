@@ -1,7 +1,7 @@
 ## ================================================================================================================
 ##                                 Harvard Business School, Ethical Intelligence Lab
 ## ================================================================================================================
-##                                DATA ANALYSIS | AV CULPABILITY STUDY | EXPERIMENT 1               
+##                                DATA ANALYSIS | AV CULPABILITY STUDY | PRESTUDY             
 ## ================================================================================================================
 ## clear workspace
 rm(list = ls()) 
@@ -12,7 +12,7 @@ library(ltm)
 library(readxl)
 
 # =====================================================================================
-# Read XLSX files
+#                                 Read XLSX files
 # =====================================================================================
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -23,10 +23,11 @@ wapo <- read_xlsx("./data/ArticleCoding - Washington Post.xlsx", sheet = 1, skip
 nyp <- read_xlsx("./data/ArticleCoding - New York Post.xlsx", sheet = 1, skip = 2)
 
 # =====================================================================================
-# Get Relevant Columns and Bind them!
+#                                 PREPROCESSING
 # =====================================================================================
 relevant_col <- c("Journal", "Categorization for Coder 1", "Categorization for Coder 2")
 
+## Read indvidual newspaper sources and standardize columns
 nyt <- nyt[,relevant_col]
 usa <- usa[, relevant_col]
 wapo <- wapo[, relevant_col]
@@ -35,30 +36,36 @@ nyp <- nyp[, c(5,8,9)]
 colnames(wsj) <- relevant_col 
 colnames(nyp) <- relevant_col
 
+## Bind the dataframe
 df <- rbind(nyt, usa, wapo, wsj, nyp)
 
+
 # =====================================================================================
-# Calculate Cronbach Alpha
+#                                 ANALYSIS
 # =====================================================================================
 
+## Reliability of Coding
 cronbach.alpha(df[df$Journal == "New York Times", c(2,3)])
-cronbach.alpha(df[df$Journal == "USA Today", c(2,3)])
-cronbach.alpha(df[df$Journal == "Washington Post", c(2,3)])
 cronbach.alpha(df[df$Journal == "Wall Street Journal", c(2,3)])
+cronbach.alpha(df[df$Journal == "Washington Post", c(2,3)])
 cronbach.alpha(df[df$Journal == "New York Post", c(2,3)])
+cronbach.alpha(df[df$Journal == "USA Today", c(2,3)])
 
-
-# =====================================================================================
-# Proportion of Mismarketing
-# =====================================================================================
+## Only keep those with agreements
+## and make dummy variables for mismarketing
 df |>
   filter(`Categorization for Coder 1` == `Categorization for Coder 2`) |>
   mutate(
     mismarketing = ifelse(`Categorization for Coder 1` == 1, TRUE, FALSE)
-  ) |>
+  ) -> df
+
+## Overall proportion of mismarketing
+p <- mean(df$mismarketing); p
+
+df |>
   group_by(Journal) |>
-  summarize( prop = mean(mismarketing),
-             count = sum(mismarketing),
-             num_documents = n()) -> prop
+  summarize( count = sum(mismarketing),
+             num_documents = n()) |>
+  mutate( prop = count/num_documents )-> prop
 
 prop

@@ -2,7 +2,7 @@
 ## ================================================================================================================
 ##                                 Harvard Business School, Ethical Intelligence Lab
 ## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 5c               
+##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 5c           
 ## ================================================================================================================
 
 ## clear workspace
@@ -39,7 +39,7 @@ source('../process.r')
 
 
 ## ================================================================================================================
-##                                Exclusions and Pre-processing               
+##                                Exclusions and Pre-processing              
 ## ================================================================================================================
 
 # Read full dataset
@@ -52,17 +52,14 @@ df |>
   mutate_if(all.is.numeric, as.numeric) -> df
 
 # ATTENTION CHECKS
-n_initial <- nrow(df)
 df |>
   filter(att_1 == 2, att_2 == 2) -> df
 
 n_attention <- nrow(df); n_attention
 
-# COMPREHENSION CHECKS
+# COMPREHENSION CHECKS 1 and 2
 df |>
   filter(comp_1 == 2 & comp_2 == 4) -> df
-
-n_comprehension <- nrow(df); n_comprehension
 
 # Rearranging
 df |>
@@ -93,23 +90,34 @@ d |>
 d |>
   filter((comp_4 == 1 | is.na(comp_4))) -> d
 
-n_comprehension <- nrow(d)
+## For PROCESS
+d$firm <- rowMeans(d[,c("r_soft", "l_firm")])
+d$human <- rowMeans(d[,c("r_human", "l_human")])
 
+d_process <- d
+d_process$label <- as.numeric(as.factor(d_process$label))
+d_process$benefits <- as.numeric(as.factor(d_process$benefits))
+
+## Number of Final Participants
+n_comprehension <- nrow(d); n_comprehension
+
+## Number excluded
 n_attention - n_comprehension
 
 ## ================================================================================================================
-##                                Participants Characteristics               
+##                                Participant Characteristics              
 ## ================================================================================================================
 
 # AGE
-mean(as.numeric(d$age), na.rm=T) # filtering the ones who put year
+mean(as.numeric(d$age), na.rm = T) 
 
 # GENDER
 prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 
 ## ================================================================================================================
-##                                Analysis               
+##                               Analysis              
 ## ================================================================================================================
+
 cronbach.alpha(d[,c("r_soft", "l_firm")])
 cronbach.alpha(d[,c("r_human", "l_human")])
 
@@ -119,22 +127,14 @@ d$human <- rowMeans(d[,c("r_human", "l_human")])
 # FIRM
 a <- aov(firm ~ as.factor(label) * as.factor(benefits), data = d)
 summary(a)
-anova_stats(a)
+anova_stats(a); anova_stats(a)$partial.etasq
 
-### t-tests
-t1 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
-              d[d$benefits == 'Present' & d$label == 'co',]$firm, paired = FALSE)
+## t-tests
+
+### Absent Condition
+t1 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
+             d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
 t1
-
-sd(d[d$benefits == 'Present' & d$label == 'auto',]$firm)
-sd(d[d$benefits == 'Present' & d$label == 'co',]$firm)
-
-cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
-       d[d$benefits == 'Present' & d$label == 'co',]$firm)
-
-t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
-                d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
-t2
 
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
@@ -142,10 +142,21 @@ sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
         d[d$benefits == 'Absent' & d$label == 'co',]$firm)
 
-# Direct Effect of Benefits FIRM
-t1 <- t.test(d[d$benefits == 'Present',]$firm,
+### Present Condition
+t2 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
+             d[d$benefits == 'Present' & d$label == 'co',]$firm, paired = FALSE)
+t2
+
+sd(d[d$benefits == 'Present' & d$label == 'auto',]$firm)
+sd(d[d$benefits == 'Present' & d$label == 'co',]$firm)
+
+cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
+        d[d$benefits == 'Present' & d$label == 'co',]$firm)
+
+## Direct effect of advertisement
+t3 <- t.test(d[d$benefits == 'Present',]$firm,
              d[d$benefits == 'Absent',]$firm, paired = FALSE)
-t1
+t3
 
 sd(d[d$benefits == 'Present',]$firm)
 sd(d[d$benefits == 'Absent',]$firm)
@@ -153,25 +164,21 @@ sd(d[d$benefits == 'Absent',]$firm)
 cohen.d(d[d$benefits == 'Present',]$firm,
         d[d$benefits == 'Absent',]$firm)
 
+## Simple Mediation
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
 
 # HUMAN
 a <- aov(human ~ as.factor(label) * as.factor(benefits), data = d)
 summary(a)
-anova_stats(a)
+anova_stats(a); anova_stats(a)$partial.etasq
 
-t1 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$human,
-             d[d$benefits == 'Present' & d$label == 'co',]$human, paired = FALSE)
-t1
-
-sd(d[d$benefits == 'Present' & d$label == 'auto',]$human)
-sd(d[d$benefits == 'Present' & d$label == 'co',]$human)
-
-cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$human,
-       d[d$benefits == 'Present' & d$label == 'co',]$human)
-
-t2 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
+## Absent Condition
+t1 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
              d[d$benefits == 'Absent' & d$label == 'co',]$human, paired = FALSE)
-t2
+t1
 
 sd(d[d$benefits == 'Absent' & d$label == 'auto',]$human)
 sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
@@ -179,8 +186,18 @@ sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
 cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
         d[d$benefits == 'Absent' & d$label == 'co',]$human)
 
-# Direct Effect of Benefits HUMAN
+## Present Condition
+t2 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$human,
+             d[d$benefits == 'Present' & d$label == 'co',]$human, paired = FALSE)
+t2
 
+sd(d[d$benefits == 'Present' & d$label == 'auto',]$human)
+sd(d[d$benefits == 'Present' & d$label == 'co',]$human)
+
+cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$human,
+        d[d$benefits == 'Present' & d$label == 'co',]$human)
+
+## Direct Effects
 t2 <- t.test(d[d$benefits == 'Present',]$human,
              d[d$benefits == 'Absent',]$human, paired = FALSE)
 t2
@@ -189,35 +206,12 @@ sd(d[d$benefits == 'Present',]$human)
 sd(d[d$benefits == 'Absent',]$human)
 
 cohen.d(d[d$benefits == 'Present',]$human,
-       d[d$benefits == 'Absent',]$human)
+        d[d$benefits == 'Absent',]$human)
 
-## ================================================================================================================
-##                                PROCESS              
-## ================================================================================================================
-
-d_process <- d
-d_process$label <- as.numeric(as.factor(d_process$label))
-d_process$benefits <- as.numeric(as.factor(d_process$benefits))
-
-# FIRM COMBINED
-process(data = d_process, y = "firm", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-# HUMAN COMBINED
+## Simple Mediation
 process(data = d_process, y = "human", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-# FIRM COMBINED
-process(data = d_process, y = "firm", x = "label", w = "benefits",
-        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-# HUMAN COMBINED
-process(data = d_process, y = "human", x = "label", w = "benefits",
-        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
 
 ## ================================================================================================================
 ##                                VISUALIZATION               

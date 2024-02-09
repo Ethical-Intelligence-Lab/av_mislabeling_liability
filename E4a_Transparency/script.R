@@ -1,7 +1,7 @@
 ## ================================================================================================================
-##                                 Harvard Business School, Ethical Iopelligence Lab
+##                                 Harvard Business School, Ethical Intelligence Lab
 ## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 4 Transparency               
+##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 4a Transparency               
 ## ================================================================================================================
 ## clear workspace
 rm(list = ls()) 
@@ -36,7 +36,7 @@ pacman::p_load('ggplot2',         # plotting
 )
 
 ## ================================================================================================================
-##                                                  PRE-PROCESSING                 
+##                                                  EXCLUSIONS                
 ## ================================================================================================================
 
 # Read full dataset
@@ -44,7 +44,6 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 df <- read_csv("data.csv")
 # Remove first two rows that were headers
 df <- df[-c(1,2),]
-
 
 # Rename column and labels
 df$cond <- df$FL_12_DO
@@ -59,8 +58,11 @@ df |>
     att_1 == 2,
     att_2 == 2 ) -> df
 
-recruited_participants <- dim(df)[1]
+## Recruited Participants
+recruited_participants <- dim(df)[1]; recruited_participants
 
+
+## Comprehension Checks
 df |>
   filter(
     comp_1 == 2,
@@ -68,16 +70,20 @@ df |>
     comp_3 == 1
   ) -> df
 
-# Exclude more (based on Stuti's code)
 df |>
   filter((cond == 'auto_op' & comp_4 == 2 |
             cond == 'auto_ft' & comp_4 == 3 |
             cond == 'co_op' & comp_4 == 2   | 
             cond == 'co_ft' & comp_4 == 3     )) -> df
 
-final_n <- dim(df)[1]
+## Number of final participants
+final_n <- dim(df)[1]; final_n
+## Number excluded
+excluded <- recruited_participants - final_n; excluded
 
-excluded <- recruited_participants - final_n
+## ================================================================================================================
+##                                                  PRE-PROCESSING                 
+## ================================================================================================================
 
 # Identify transparency and labels
 df |>
@@ -124,33 +130,21 @@ d |>
   ) -> d
 
 
-
-
 ## ================================================================================================================
 ##                                              PARTICIPANT CHARACTERISTICS              
 ## ================================================================================================================
 # AGE
 mean(d[d$age < 150,]$age) # filtering the ones who put year
-hist(d[d$age < 150,]$age, main = "Histogram of Age", xlab = "Age")
 
 # GENDER
-d |>
-  filter( gender < 3 ) |>
-  mutate( 
-    gender_lab = ifelse(gender == 1, "male", "female"),
-    is_male = ifelse(gender == 1, 1, 0)
-    ) -> gender
-mean(gender$is_male)
-barplot(table(gender$gender_lab), main="Participants' Gender")
-rm(gender)
-
-
+prop.table(table(d[d$gender < 3,]$gender))[1]
 
 ## ================================================================================================================
 ##                                              PARTICIPANT CHARACTERISTICS              
 ## ===============================================================================================================
-cronbach.alpha(d[,c("resp_human", "liable_human")])
+
 cronbach.alpha(d[,c("resp_soft", "liable_firm")])
+cronbach.alpha(d[,c("resp_human", "liable_human")])
 
 d |>
   mutate(
@@ -162,24 +156,14 @@ d |>
 ## ANOVA
 f_anova <- aov(firm ~ as.factor(label) * as.factor(transparency), data = d)
 summary(f_anova)
-anova_stats(f_anova)
+anova_stats(f_anova); anova_stats(f_anova)$partial.etasq
 
 ## t-tests
-### Transparent Condition
-t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
-             d[d$transparency == 'yes'& d$label == 'co',]$firm, paired = FALSE)
-t1
-
-sd(d[d$transparency == 'yes'& d$label == 'auto',]$firm)
-sd(d[d$transparency == 'yes'& d$label == 'co',]$firm)
-
-cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
-        d[d$transparency == 'yes'& d$label == 'co',]$firm)
 
 ### Opaque Condition
-t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$firm,
+t1 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$firm,
              d[d$transparency == 'no' & d$label == 'co',]$firm, paired = FALSE)
-t2
+t1
 
 sd(d[d$transparency == 'no'& d$label == 'auto',]$firm)
 sd(d[d$transparency == 'no'& d$label == 'co',]$firm)
@@ -187,17 +171,41 @@ sd(d[d$transparency == 'no'& d$label == 'co',]$firm)
 cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$firm,
         d[d$transparency == 'no'& d$label == 'co',]$firm)
 
+### Transparent Condition
+t2 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
+             d[d$transparency == 'yes'& d$label == 'co',]$firm, paired = FALSE)
+t2
+
+sd(d[d$transparency == 'yes'& d$label == 'auto',]$firm)
+sd(d[d$transparency == 'yes'& d$label == 'co',]$firm)
+
+cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
+        d[d$transparency == 'yes'& d$label == 'co',]$firm)
+
+
 # HUMAN LIABILITY
 ## ANOVA
 h_anova <- aov(human ~ as.factor(label) * as.factor(transparency), data = d)
 summary(h_anova)
-anova_stats(h_anova)
+anova_stats(h_anova); anova_stats(h_anova)$partial.etasq
 
 ## t-tests
-### Transparent Condition
-t1 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$human,
-             d[d$transparency == 'yes'& d$label == 'co',]$human, paired = FALSE)
+
+### Opaque Condition
+t1 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$human,
+             d[d$transparency == 'no' & d$label == 'co',]$human, paired = FALSE)
 t1
+
+sd(d[d$transparency == 'no' & d$label == 'auto',]$human)
+sd(d[d$transparency == 'no' & d$label == 'co',]$human)
+
+cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$human,
+        d[d$transparency == 'no'& d$label == 'co',]$human)
+
+### Transparent Condition
+t2 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$human,
+             d[d$transparency == 'yes'& d$label == 'co',]$human, paired = FALSE)
+t2
 
 sd(d[d$transparency == 'yes'& d$label == 'auto',]$human)
 sd(d[d$transparency == 'yes'& d$label == 'co',]$human)
@@ -205,16 +213,6 @@ sd(d[d$transparency == 'yes'& d$label == 'co',]$human)
 cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$human,
        d[d$transparency == 'yes'& d$label == 'co',]$human)
 
-### Opaque Condition
-t2 <- t.test(d[d$transparency == 'no' & d$label == 'auto',]$human,
-             d[d$transparency == 'no' & d$label == 'co',]$human, paired = FALSE)
-t2
-
-sd(d[d$transparency == 'no' & d$label == 'auto',]$human)
-sd(d[d$transparency == 'no' & d$label == 'co',]$human)
-
-cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$human,
-        d[d$transparency == 'no'& d$label == 'co',]$human)
 
 ## ================================================================================================================
 ##                                                 PROCESS ANALYSIS              
@@ -229,17 +227,6 @@ d |>
 ### - transparency no ~ 1, yes ~ 2
 ### - label auto ~ 1, co ~ 2
 
-# SIMPLE MEDIATION
-## FIRM LIABILITY
-process(data = d_process, y = "firm", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-## HUMAN LIABILITY
-process(data = d_process, y = "human", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
 # MODERATED MEDIATION
 ## FIRM LIABILITY
 process(data = d_process, y = "firm", x = "label", 
@@ -251,11 +238,21 @@ process(data = d_process, y = "human", x = "label",
         m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
+# SIMPLE MEDIATION
+## FIRM LIABILITY
+process(data = d_process, y = "firm", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
+## HUMAN LIABILITY
+process(data = d_process, y = "human", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## ================================================================================================================
 ##                                                 VISUALIZATION              
 ## ================================================================================================================
+dev.off()
 std.error <- function(x) sd(x)/sqrt(length(x))
 
 d |>

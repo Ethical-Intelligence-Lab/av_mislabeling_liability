@@ -1,12 +1,13 @@
 ## ================================================================================================================
 ##                                 Harvard Business School, Ethical Intelligence Lab
 ## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 1               
+##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 1a               
 ## ================================================================================================================
 ## clear workspace
 rm(list = ls()) 
 
 ## import packages
+pacman::p_load('BayesFactor')
 library(dplyr)
 library(ltm)
 library(ggplot2)
@@ -16,6 +17,7 @@ library(tidyr)
 library(lsr)
 library(ltm)
 library(effsize)
+
 
 ## ================================================================================================================
 ##                                                  PRE-PROCESSING                 
@@ -40,8 +42,6 @@ table(d$cond)
 ##                                                   EXCLUSIONS                
 ## ================================================================================================================
 
-## number of participants BEFORE exclusions: 
-dim(d)[1] # extracting number of rows only, not columns
 
 ## attention exclusions: 
 # remove responses from data frame that failed attention checks
@@ -54,16 +54,13 @@ n_original
 ## comprehension exclusions: 
 # remove responses from data frame that failed comprehension checks
 d <- subset(d, (d$comp_1 == 2 & d$comp_2 == 4))
-dim(d) # number of participants should decrease after comprehension exclusions
 
 ## number of participants AFTER exclusions: 
 n_final <- dim(d)[1] # extracting number of rows only, not columns
 n_final 
 
-percent_excluded <- (n_original - n_final)/n_original 
-percent_excluded
-table(d$cond)
-
+## Num excluded
+n_excluded <- n_original - n_final; n_excluded
 
 ## ================================================================================================================
 ##                                                    SUBSETTING                 
@@ -88,8 +85,6 @@ d <- d %>% relocate(value_2_3_1, .after = value_1_3_1)
 d <- d %>% relocate(value_3_3_1, .after = value_2_3_1)
 d <- d %>% relocate(value_2_4, .after = value_1_4)
 d <- d %>% relocate(value_3_4, .after = value_2_4)
-
-colnames(d)
 
 ## new data frame to extract pre-processed data into:
 d_subset <- array(dim=c(dim(d)[1], 10))
@@ -124,10 +119,7 @@ for(i in 1:dim(d)[1]) {
 d_merged <- cbind(d_subset, d[,51:60])
 d_merged$ss <- 1:dim(d_merged)[1]
 
-colnames(d_merged)
-
 ## cleaning up extreme prices of $30, $50 and $480,000
-d_merged$value4
 d_merged <- d_merged[-98,] #50
 d_merged <- d_merged[-102,] #30
 d_merged <- d_merged[-60,] #480k
@@ -142,63 +134,53 @@ rm(d, d_subset, i, curr)
 mean_age <- mean(d_merged$age, trim = 0, na.rm = TRUE) ## mean age 
 mean_age
 
-hist(d_merged$age)
-
 ## gender
 prop_male <- table(d_merged$gender)[[1]]/sum(table(d_merged$gender)) ## percentage of males
 prop_male
-
-prop_female <- table(d_merged$gender)[[2]]/sum(table(d_merged$gender)) ## percentage of females
-prop_female
-
 
 ## ================================================================================================================
 ##                                              DATA ANALYSIS             
 ## ================================================================================================================
 
 # LEVEL OF AUTOMATION
-# t-tests
 ## Autopilot vs Copilot
 d1 <- subset(d_merged, d_merged$cond != 'dless')
 t.test(auto ~ cond, data = d1)
+
+sd(d_merged[d_merged$cond == "auto",]$auto)
+sd(d_merged[d_merged$cond == "co",]$auto)
+
+cohen.d(d_merged[d_merged$cond == "co",]$auto, d_merged[d_merged$cond == "auto",]$auto)
+
 ## Autopilot vs Driverless
 d2 <- subset(d_merged, d_merged$cond != 'co')
 t.test(auto ~ cond, data = d2)
+
+sd(d_merged[d_merged$cond == "dless",]$auto)
+
+cohen.d(d_merged[d_merged$cond == "dless",]$auto, d_merged[d_merged$cond == "auto",]$auto)
+
 ## Copilot vs. Driverless
 d3 <- subset(d_merged, d_merged$cond != 'auto')
 t.test(auto ~ cond, data = d3)
 
-# Standard Deviation
-## Driverless
-sd(d_merged[d_merged$cond == "dless",]$auto)
-## Autopilot
-sd(d_merged[d_merged$cond == "auto",]$auto)
-## Copilot
-sd(d_merged[d_merged$cond == "co",]$auto)
+cohen.d(d_merged[d_merged$cond == "co",]$auto, d_merged[d_merged$cond == "dless",]$auto)
 
-# Cohen's D
-## Driverless vs. Autopilot
-cohen.d(d_merged[d_merged$cond == "dless",]$auto, d_merged[d_merged$cond == "auto",]$auto)
-## Driverless vs Copilot
-cohen.d(d_merged[d_merged$cond == "dless",]$auto, d_merged[d_merged$cond == "co",]$auto)
-## Copilot vs Autopilot
-cohen.d(d_merged[d_merged$cond == "co",]$auto, d_merged[d_merged$cond == "auto",]$auto)
-
-
-pacman::p_load('BayesFactor')
-
-summary(lm(auto~cond, d_merged))
-
-result <- ttestBF(x = d_merged[d_merged$cond == "dless",]$auto, y = d_merged[d_merged$cond == "auto",]$auto)
+## Bayes Factor t-test
+### Autopilot and Copilot
+result <- ttestBF(x = d_merged[d_merged$cond == "auto",]$auto, 
+                  y = d_merged[d_merged$cond == "co",]$auto)
 1 / result
 
-result <- ttestBF(x = d_merged[d_merged$cond == "dless",]$auto, y = d_merged[d_merged$cond == "co",]$auto)
+### Autopilot and Driverless
+result <- ttestBF(x = d_merged[d_merged$cond == "auto",]$auto, 
+                  y = d_merged[d_merged$cond == "dless",]$auto)
 1 / result
 
-result <- ttestBF(x = d_merged[d_merged$cond == "co",]$auto, y = d_merged[d_merged$cond == "auto",]$auto)
+## Copilot and Driverless
+result <- ttestBF(x = d_merged[d_merged$cond == "co",]$auto, 
+                  y = d_merged[d_merged$cond == "dless",]$auto)
 1 / result
-
-rm(result)
 
 ## ================================================================================================================
 ##                                              Cronbach Alpha           
@@ -216,66 +198,16 @@ d_merged |>
     value4 = (value4 - mean(value4))/sd(value4)
   ) -> d_merged
 
-d_use <- d_merged[,c("use1", "use2", "use3", "use4")]
-d_use$use4 <- -d_use$use4
-cronbach.alpha(d_use)
 
+## Cronbach Alpha
+### Perceived value
 d_val <- d_merged[,c("value1", "value2", "value3", "value4")]
 cronbach.alpha(d_val)
 
-d_merged |>
-  mutate(use = (use1 + use2 + use3 + use4)/4,
-         value = (value1 + value2 + value3 + value4) / 4) -> d_merged
-
-# USE
-# t-tests
-## Autopilot vs Copilot
-d1 <- subset(d_merged, d_merged$cond != 'dless')
-t.test(use ~ cond, data = d1)
-## Autopilot vs Driverless
-d2 <- subset(d_merged, d_merged$cond != 'co')
-t.test(use ~ cond, data = d2)
-## Copilot vs. Driverless
-d3 <- subset(d_merged, d_merged$cond != 'auto')
-t.test(use ~ cond, data = d3)
-
-# Standard Deviation
-## Driverless
-sd(d_merged[d_merged$cond == "dless",]$use)
-## Autopilot
-sd(d_merged[d_merged$cond == "auto",]$use)
-## Copilot
-sd(d_merged[d_merged$cond == "co",]$use)
-
-# VALUE
-# t-tests
-## Autopilot vs Copilot
-d1 <- subset(d_merged, d_merged$cond != 'dless')
-t.test(value ~ cond, data = d1)
-## Autopilot vs Driverless
-d2 <- subset(d_merged, d_merged$cond != 'co')
-t.test(value ~ cond, data = d2)
-## Copilot vs. Driverless
-d3 <- subset(d_merged, d_merged$cond != 'auto')
-t.test(value ~ cond, data = d3)
-
-# Standard Deviation
-## Driverless
-sd(d_merged[d_merged$cond == "dless",]$value)
-## Autopilot
-sd(d_merged[d_merged$cond == "auto",]$value)
-## Copilot
-sd(d_merged[d_merged$cond == "co",]$value)
-
-
-# Cohen's D
-## Driverless vs. Autopilot
-cohen.d(d_merged[d_merged$cond == "dless",]$use, d_merged[d_merged$cond == "auto",]$use)
-## Driverless vs Copilot
-cohen.d(d_merged[d_merged$cond == "dless",]$use, d_merged[d_merged$cond == "co",]$use)
-## Copilot vs Autopilot
-cohen.d(d_merged[d_merged$cond == "co",]$use, d_merged[d_merged$cond == "auto",]$use)
-
+### Ease of Use
+d_use <- d_merged[,c("use1", "use2", "use3", "use4")]
+d_use$use4 <- -d_use$use4
+cronbach.alpha(d_use)
 
 ## ================================================================================================================
 ##                                       Data Visualization                
@@ -338,6 +270,65 @@ plot_bar(dv = "Perceived Automation", y_pos = c(6, 6.75, 7.5),
 a1 
 
 ggsave("perceived_automation.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+## ================================================================================================================
+##                                      Ease of Use and Perceived Value                
+## ================================================================================================================
+
+d_merged |>
+  mutate(use = (use1 + use2 + use3 + use4)/4,
+         value = (value1 + value2 + value3 + value4) / 4) -> d_merged
+
+# USE
+# t-tests
+## Autopilot vs Copilot
+d1 <- subset(d_merged, d_merged$cond != 'dless')
+t.test(use ~ cond, data = d1)
+## Autopilot vs Driverless
+d2 <- subset(d_merged, d_merged$cond != 'co')
+t.test(use ~ cond, data = d2)
+## Copilot vs. Driverless
+d3 <- subset(d_merged, d_merged$cond != 'auto')
+t.test(use ~ cond, data = d3)
+
+# Standard Deviation
+## Driverless
+sd(d_merged[d_merged$cond == "dless",]$use)
+## Autopilot
+sd(d_merged[d_merged$cond == "auto",]$use)
+## Copilot
+sd(d_merged[d_merged$cond == "co",]$use)
+
+# VALUE
+# t-tests
+## Autopilot vs Copilot
+d1 <- subset(d_merged, d_merged$cond != 'dless')
+t.test(value ~ cond, data = d1)
+## Autopilot vs Driverless
+d2 <- subset(d_merged, d_merged$cond != 'co')
+t.test(value ~ cond, data = d2)
+## Copilot vs. Driverless
+d3 <- subset(d_merged, d_merged$cond != 'auto')
+t.test(value ~ cond, data = d3)
+
+# Standard Deviation
+## Driverless
+sd(d_merged[d_merged$cond == "dless",]$value)
+## Autopilot
+sd(d_merged[d_merged$cond == "auto",]$value)
+## Copilot
+sd(d_merged[d_merged$cond == "co",]$value)
+
+
+# Cohen's D
+## Driverless vs. Autopilot
+cohen.d(d_merged[d_merged$cond == "dless",]$use, d_merged[d_merged$cond == "auto",]$use)
+## Driverless vs Copilot
+cohen.d(d_merged[d_merged$cond == "dless",]$use, d_merged[d_merged$cond == "co",]$use)
+## Copilot vs Autopilot
+cohen.d(d_merged[d_merged$cond == "co",]$use, d_merged[d_merged$cond == "auto",]$use)
+
+
 
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 

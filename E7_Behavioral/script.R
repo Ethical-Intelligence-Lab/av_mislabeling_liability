@@ -54,17 +54,15 @@ df |>
   filter( Finished == 1) -> df
 
 # ATTENTION CHECKS
-n_initial <- nrow(df)
 df |>
   filter(att_1 == 2, att_2 == 2) -> df
 
+## Number Recruited
 n_attention <- nrow(df); n_attention
 
-# COMPREHENSION CHECKS
+# COMPREHENSION CHECKS 1 and 2
 df |>
   filter(comp_1 == 2 & comp_2 == 4) -> df
-
-n_comprehension <- nrow(df); n_comprehension
 
 auto <- df[,c("auto_1", "control_auto_10", "hands_off_auto_10", "watch_auto_10",
               "nap_auto_10", "comp_3...29", "unsafe_self_10",
@@ -105,8 +103,18 @@ rm(auto,co)
 df |>
   filter(comp_3 == 1) -> d
 
-n_comprehension <- nrow(d)
+d$behavior <- rowMeans(d[, c("control", "hands_off", "watch", "nap")])
+d$risk_aversion <- rowMeans(d[, c("unsafe_self", "worried_self", "unsafe_others", "worried_others", 
+                                  "likely_others", "likely_self", "concern_others", "concern_self")])
 
+# FOR PROCESS
+d_process <- d
+d_process$label <- as.numeric(as.factor(d_process$label))
+
+## Number of final participants
+n_comprehension <- nrow(d); n_comprehension
+
+## Number Excluded
 n_attention - n_comprehension
 
 ## ================================================================================================================
@@ -126,62 +134,59 @@ cronbach.alpha(d[, c("control", "hands_off", "watch", "nap")])
 cronbach.alpha(d[, c("unsafe_self", "worried_self", "unsafe_others", "worried_others", 
                      "likely_others", "likely_self", "concern_others", "concern_self")])
 
-d$behavior <- rowMeans(d[, c("control", "hands_off", "watch", "nap")])
-d$risk_aversion <- rowMeans(d[, c("unsafe_self", "worried_self", "unsafe_others", "worried_others", 
-                                  "likely_others", "likely_self", "concern_others", "concern_self")])
-
 
 # Distracted Intentions
 t1 <- t.test(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior, paired = FALSE)
 t1
 
-cohen.d(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior)
-
 sd(d[d$label == "auto",]$behavior)
 sd(d[d$label == "co",]$behavior)
+
+cohen.d(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior)
+
+## Simple Mediation
+process(data = d_process, y = "behavior", x = "label", 
+        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+## Moderated Mediation (Risk Aversion) 
+process(data = d_process, y = "behavior", x = "label", w = c("risk_aversion"),
+        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
+## Moderated Mediation (AI Knowledge) 
+process(data = d_process, y = "behavior", x = "label", w = "ai_knowledge",
+        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
+        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+
 
 # Time to Take Control
 t2 <- t.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control, paired = FALSE)
 t2
 
-cohen.d(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
-
 sd(d[d$label == "auto",]$time_control)
 sd(d[d$label == "co",]$time_control)
 
-## ================================================================================================================
-##                                PROCESS              
-## ================================================================================================================
+cohen.d(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
 
-d_process <- d
-d_process$label <- as.numeric(as.factor(d_process$label))
-
-# BEHAVIOR
-process(data = d_process, y = "behavior", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-process(data = d_process, y = "behavior", x = "label", w = c("risk_aversion"),
-        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-process(data = d_process, y = "behavior", x = "label", w = "ai_knowledge",
-        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-# TIME CONTROL
+## Simple Mediation
 process(data = d_process, y = "time_control", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
-process(data = d_process, y = "time_control", x = "label", w = "risk_aversion",
+## Moderated Mediation (Risk Aversion) 
+process(data = d_process, y = "time_control", x = "label", w = c("risk_aversion"),
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
+## Moderated Mediation (AI Knowledge) 
 process(data = d_process, y = "time_control", x = "label", w = "ai_knowledge",
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
+## Distribution of Time to Take Control
+## Kolmogorov-Smirnov 
+ks.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
 
 ## ================================================================================================================
 ##                                VISUALIZATION               
@@ -287,4 +292,4 @@ ggplot(data = d_density, aes(color =`Marketing Label`, x=time_control )) +
 
 ggsave("time_density.pdf", device = "pdf",width = 5.3, height = 3.7, units = "in")
 
-ks.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
+

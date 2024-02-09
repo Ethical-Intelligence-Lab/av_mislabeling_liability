@@ -2,7 +2,7 @@
 ## ================================================================================================================
 ##                                 Harvard Business School, Ethical Intelligence Lab
 ## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 7               
+##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 1b               
 ## ================================================================================================================
 
 ## clear workspace
@@ -38,7 +38,7 @@ pacman::p_load('tidyverse',       # most stuff
 
 
 ## ================================================================================================================
-##                                Exclusions and Pre-processing               
+##                                Exclusions               
 ## ================================================================================================================
 
 # Read full dataset
@@ -57,14 +57,23 @@ n_initial <- nrow(df)
 df |>
   filter(att_1 == 2, att_2 == 2) -> df
 
+## Number of participants
 n_attention <- nrow(df); n_attention
 
 # COMPREHENSION CHECKS
 df |>
   filter(comp_1 == 2 & comp_2 == 4 ) |>
-  filter(`comp_3...33` == 3 | `comp_3...28` == 3)-> df
+  filter(`comp_3...33` == 3 | `comp_3...28` == 3) -> df
 
+## Final Sample
 n_comprehension <- nrow(df); n_comprehension
+
+## Nummber excluded
+n_attention - n_comprehension
+
+## ================================================================================================================
+##                                Preprocessing               
+## ================================================================================================================
 
 auto <- df[,c("auto_verb", "auto_explanation", "auto_magnitude_5", "perceived_automation", "age", "gender")]
 co <- df[, c("co_verb", "co_explanation", "co_magnitude_5", "capability_copilot", "age", "gender")]
@@ -77,15 +86,11 @@ colnames(auto) <- column_names
 colnames(co) <- column_names
 
 df <- rbind(auto, co)
-rm(auto,co)
 
-# COMPREHENSION CHECKS 3 & 4
 df |>
   drop_na() -> d
 
-n_comprehension <- nrow(d)
-
-n_attention - n_comprehension
+rm(auto,co)
 
 ## ================================================================================================================
 ##                                Participants Characteristics               
@@ -114,16 +119,15 @@ d$cause <- ifelse(d$verb == 1, 1, 0)
 d$help <- ifelse(d$verb == 2, 1, 0)
 d$prevent <- ifelse(d$verb == 3, 1, 0)
 
-
-table(d$cause, d$condition)
+## Cause
 summary(glm(cause ~ condition, d, family = "binomial"))
 prop.table(table(d$cause, d$condition))
 
-table(d$help, d$condition)
+## Help
 summary(glm(help ~ condition, d, family = "binomial"))
 prop.table(table(d$help, d$condition))
 
-table(d$prevent, d$condition)
+## Prevent
 summary(glm(prevent ~ condition, d, family = "binomial"))
 
 ## Causal Magnitude
@@ -136,3 +140,7 @@ cohen.d(d[d$condition == "auto", ]$magnitude, d[d$condition == "co", ]$magnitude
 
 ## correlation
 cor(d$capability, d$magnitude)
+
+## ================================================================================================================
+##                                      End of Analysis               
+## ================================================================================================================

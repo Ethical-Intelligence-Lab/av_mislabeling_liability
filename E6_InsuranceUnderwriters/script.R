@@ -41,42 +41,37 @@ df <- df[-c(1,2),]
 df |>
   mutate_if(all.is.numeric, as.numeric) -> df
 
+## Number of participants
+n_participants <- nrow(df); n_participants
+
+df$`Consider Label` <- ifelse(df$risk_1 == 1, "Yes", "No")
+
 ## ================================================================================================================
 ##                                ANALYSIS             
 ## ================================================================================================================
 
 
-# Consider the labels
-sum(!is.na(df$risk_1))/length(df$risk_1)
-df$`Consider Label` <- ifelse(df$risk_1 == 1, "Yes", "No")
-table(df$`Consider Label`)
+# Proportion Responded
+sum(!is.na(df$risk_1))/length(df$risk_1) # Consider labels for risk
+sum(!is.na(df$adjust_4))/length(df$adjust_4) # Adjust Risk Premiums
+sum(!is.na(df$risk_4))/length(df$risk_4) # Increase Risk Premiums
+sum(!is.na(df$advise_4))/length(df$advise_4) # Advise
+(sum(!is.na(df$reasoning)) - 2)/length(df$reasoning) # Reasoning (minus 2 for n/a and - in response)
+
+
+## Consider Label
 prop.table(table(df$`Consider Label`))
+table(df$`Consider Label`)
 
 chisq.test(table(df$`Consider Label`), p = c(.5,.5))
 
 # Adjust Risk Estimates
-sum(!is.na(df$adjust_4))/length(df$adjust_4)
 t.test(df$adjust_4, mu = 50)
 sd(df$adjust_4, na.rm = T)
 
 # Increase/Decrease Risk Estimates
-sum(!is.na(df$risk_4))/length(df$risk_4)
 t.test(df$risk_4, mu = 50)
 sd(df$risk_4, na.rm = T)
-
-# Premiums
-sum(!is.na(df$premiums_4))/length(df$premiums_4)
-#t.test(df$premiums_4, mu = 50)
-#sd(df$premiums_4, na.rm = T)
-
-# Advise
-sum(!is.na(df$advise_4))/length(df$advise_4)
-#t.test(df$advise_4, mu = 50)
-#sd(df$advise_4, na.rm = T)
-
-# Reasoning
-# minus 2 for n/a and - in response
-(sum(!is.na(df$reasoning)) - 2)/length(df$reasoning)
 
 ## ================================================================================================================
 ##                                CODED DATA              
@@ -91,39 +86,3 @@ c <- paste(coded$code, collapse = ",")
 c <- strsplit(c, ",")
 
 table(c)
-
-## ================================================================================================================
-##                                TPM             
-## ================================================================================================================
-
-df |>
-  drop_na(adjust_4, risk_4) |>
-  select(adjust_4, risk_4) |>
-  gather(key = "Var", value = "value", adjust_4, risk_4) |>
-  group_by(Var) |>
-  dplyr::summarize(mean = mean(value),
-                   se = sd(value)/sqrt(n())) -> df_plot
-
-df_plot$Var <- c("Affect Premiums", "Increase Risk Estimates")
-
-se_width <- 1.96
-
-ggplot(data = df_plot, aes(x=Var, y=mean)) +
-  geom_bar(stat="identity", position="dodge", alpha=.75) +
-  geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = position_dodge(width=.9), 
-                size=.25, color="black", width=.5) +
-  geom_point(aes(y=mean),position=position_dodge(width = .9), size=.5, color="black") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=15), text = element_text(face = "bold") 
-  ) +
-  scale_fill_grey() +
-  scale_color_grey() + 
-  scale_y_continuous(limits = c(0,80), breaks = c(0,25,50,75,100)) +
-  ylab("Response") +
-  xlab("") +
-  ggtitle("Marketing Label and Insurance") -> p
-
-p
-
-ggsave("insurance_q.pdf", device = "pdf")

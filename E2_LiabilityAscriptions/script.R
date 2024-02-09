@@ -1,7 +1,7 @@
 ## ================================================================================================================
 ##                                 Harvard Business School, Ethical Intelligence Lab
 ## ================================================================================================================
-##                                DATA ANALYSIS | AV responsibility STUDY | EXPERIMENT 4               
+##                                DATA ANALYSIS | AV Label STUDY | EXPERIMENT 2               
 ## ================================================================================================================
 ## clear workspace
 rm(list = ls()) 
@@ -15,7 +15,7 @@ pacman::p_load('ggplot2',         # plotting
                'lme4',            # functions for fitting linear regression models
                'ggforce',         # make ggplot even fancier
                'ggpubr',          # arrange plots in a grid, if needed
-               'ltm',             # probably not using..
+               'ltm',           
                'tidyr',           # tools for cleaning messy data
                'stringr',         # perform string substitutions easily
                'assertthat',      # allows me to check whether a variable is a string, with is.string
@@ -64,10 +64,8 @@ table(d$cond)
 ##                                                   EXCLUSIONS                
 ## ================================================================================================================
 
-## number of participants BEFORE exclusions: 
-num_participants <- dim(d)[1] 
-num_participants
-
+## incomplete responses
+d <- subset(d, (d$Finished == 1))
 ## attention exclusions: 
 # remove responses from data frame that failed attention checks
 d <- subset(d, (d$att_1 == 2 & d$att_2 == 2))
@@ -77,14 +75,7 @@ n_original
 ## comprehension exclusions: 
 # remove responses from data frame that failed comprehension checks
 d <- subset(d, (d$comp_1 == 2 & d$comp_2 == 4))
-dim(d)[[1]] # number of participants should decrease after comprehension exclusions
 d <- subset(d, (d$comp_3 == 2 | d$comp_4 == 1))
-dim(d)[[1]]
-
-## incomplete responses
-d <- subset(d, (d$Finished == 1))
-
-
 ## number of participants AFTER exclusions: 
 n_final <- dim(d)[[1]] # extracting number of rows only, not columns
 n_final 
@@ -92,16 +83,10 @@ n_final
 # n_excluded
 n_excluded <- n_original - n_final; n_excluded
 
-percent_excluded <- (n_excluded)/n_original 
-percent_excluded
-
-table(d$cond)
-
 ## ================================================================================================================
 ##                                                    SUBSETTING                 
 ## ================================================================================================================
 
-colnames(d)
 d <- d %>% relocate(co_1, .after = auto_1)
 d <- d %>% relocate(co_resp_software, .after = auto_resp_software)
 d <- d %>% relocate(co_resp_human, .after = auto_resp_human)
@@ -132,7 +117,6 @@ for(i in 1:dim(d)[1]) {
 # new data frame to work with
 d_merged <- cbind(d_subset, d[,38:46])
 d_merged$ss <- 1:dim(d_merged)[1]
-colnames(d_merged)
 
 ## ================================================================================================================
 ##                                            PARTICIPANT CHARACTERISTICS                 
@@ -140,15 +124,10 @@ colnames(d_merged)
 
 ## age
 mean(d_merged$age, trim = 0, na.rm = TRUE) ## mean age 
-hist(d_merged$age, main = "Histogram of Age", xlab = "Age")
 
 ## gender
 gender <- ifelse(d$gender == 1, "Male", "Female")
-g_table <- table(gender)
-g_table
-
-prop_gtable <- prop.table(g_table)
-prop_gtable
+prop.table(table(gender))["Male"]
 
 rm(d, d_subset)
 
@@ -210,13 +189,11 @@ process(data = d_merged, y = "human", x = "cond",
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 
- 
-
 ## ================================================================================================================
 ##                                              DATA VIZUALIZATION              
 ## ================================================================================================================
 
-# Renaming and labeling for "plotability"
+# Renaming and labeling for plots
 d_merged |>
   select(cond, automation, firm, human) |>
   mutate(
