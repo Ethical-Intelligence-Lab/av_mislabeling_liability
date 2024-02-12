@@ -198,7 +198,7 @@ d |>
   gather(key = "DV", value = "Value", 
          time_control, behavior) |>
   mutate(
-    DV = ifelse( DV == "behavior", "Behavioral Intention", "Time to Take Control"),
+    DV = ifelse( DV == "behavior", "Distraction Intention", "Time to Take Control"),
     `Marketing Label` = case_when(
       label == "auto" ~ "Autopilot",
       label == "co" ~ "Copilot"
@@ -249,7 +249,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(40
   return(p)
 }
 
-plot_did(dv = "Behavioral Intention", signif = c("*"), yaxis=T) -> p1
+plot_did(dv = "Distraction Intention", signif = c("*"), yaxis=T) -> p1
 p1 + theme(text = element_text(face = "bold")) 
 
 ggsave("behavioral.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
@@ -266,7 +266,6 @@ ggarrange(p1 + ylab("Mean Rating") + rremove("xlab") + theme(text = element_text
   annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = .8, fontface = "bold")))
 
 ggsave("behavior_time.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-
 
 d  |>
   mutate(

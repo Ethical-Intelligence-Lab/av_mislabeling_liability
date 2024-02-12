@@ -265,7 +265,7 @@ d |>
                     label == "co" ~ "Copilot"
     ),
     Transparency = case_when(
-                    transparency == "no" ~ "Not Transparent",
+                    transparency == "no" ~ "Opaque",
                     transparency == "yes" ~ "Transparent"
     )
   ) |>
