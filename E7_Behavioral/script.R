@@ -35,7 +35,8 @@ pacman::p_load('tidyverse',       # most stuff
                "sjstats"
 )
 
-source('../process.r')
+mediation <- T
+if(mediation) source('../process.r')
 
 
 ## ================================================================================================================
@@ -145,17 +146,17 @@ sd(d[d$label == "co",]$behavior)
 cohen.d(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior)
 
 ## Simple Mediation
-process(data = d_process, y = "behavior", x = "label", 
+if(mediation) process(data = d_process, y = "behavior", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (Risk Aversion) 
-process(data = d_process, y = "behavior", x = "label", w = c("risk_aversion"),
+if(mediation) process(data = d_process, y = "behavior", x = "label", w = c("risk_aversion"),
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (AI Knowledge) 
-process(data = d_process, y = "behavior", x = "label", w = "ai_knowledge",
+if(mediation) process(data = d_process, y = "behavior", x = "label", w = "ai_knowledge",
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
@@ -170,17 +171,17 @@ sd(d[d$label == "co",]$time_control)
 cohen.d(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
 
 ## Simple Mediation
-process(data = d_process, y = "time_control", x = "label", 
+if(mediation) process(data = d_process, y = "time_control", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (Risk Aversion) 
-process(data = d_process, y = "time_control", x = "label", w = c("risk_aversion"),
+if(mediation) process(data = d_process, y = "time_control", x = "label", w = c("risk_aversion"),
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (AI Knowledge) 
-process(data = d_process, y = "time_control", x = "label", w = "ai_knowledge",
+if(mediation) process(data = d_process, y = "time_control", x = "label", w = "ai_knowledge",
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
@@ -219,7 +220,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(40
   se_width <- 1.96
   
   ggplot(data = d_plot, aes(x=`Marketing Label`, y=mean)) +
-    geom_bar(stat="identity", position="dodge", alpha=.75) +
+    geom_bar(stat="summary", position="dodge", alpha=.75) +
     geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = position_dodge(width=.9), 
                   size=.25, color="black", width=.5) +
     geom_point(aes(y=mean),position=position_dodge(width = .9), size=.5, color="black") +

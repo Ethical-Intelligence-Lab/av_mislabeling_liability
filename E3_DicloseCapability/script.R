@@ -35,6 +35,9 @@ pacman::p_load('ggplot2',         # plotting
                'sjstats'
 )
 
+# PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
+mediation <- FALSE
+
 ## ================================================================================================================
 ##                                                  PRE-PROCESSING                 
 ## ================================================================================================================
@@ -242,13 +245,15 @@ cohen.d(d_merged$human[d_merged$disclosure == 'yes'& d_merged$label == 'auto'],
 ## ================================================================================================================
 ##                                              DATA ANALYSIS - MEDIATION / MODERATED MEDIATION               
 ## ================================================================================================================
-source('../process.R')
-
 d_merged$cond_text = d_merged$cond
 d_merged$cond = as.factor(d_merged$cond)
 d_merged$cond = as.numeric(d_merged$cond)
 d_merged$disclosure = as.numeric(as.factor(d_merged$disclosure))
 d_merged$label = as.numeric(as.factor(d_merged$label))
+
+if (mediation) {
+  
+source('../process.R')
 
 ## Model 14 'b' path
 
@@ -273,7 +278,7 @@ process(data = d_merged, y = "firm", x = "label",
 process(data = d_merged, y = "human", x = "label", 
         m =c("automation"), model = 4, effsize  = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
+}
 
 ## ================================================================================================================
 ##                                              VISUALIZATION                

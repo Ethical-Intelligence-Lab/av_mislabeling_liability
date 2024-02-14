@@ -35,6 +35,9 @@ pacman::p_load('ggplot2',         # plotting
                'sjstats'
 )
 
+# PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
+mediation <- FALSE
+
 ## ================================================================================================================
 ##                                                  EXCLUSIONS                
 ## ================================================================================================================
@@ -217,11 +220,13 @@ cohen.d(d[d$transparency == 'yes'& d$label == 'auto',]$human,
 ## ================================================================================================================
 ##                                                 PROCESS ANALYSIS              
 ## ================================================================================================================
-source('../process.R')
-
 d |>
   mutate_at( c("transparency", "label"), as.factor) |>
   mutate_at( c("transparency", "label"), as.numeric) -> d_process
+
+if(mediation) {
+  
+source('../process.R')
 
 ## NOTE
 ### - transparency no ~ 1, yes ~ 2
@@ -238,21 +243,11 @@ process(data = d_process, y = "human", x = "label",
         m =c("capability"), w="transparency", model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
-# SIMPLE MEDIATION
-## FIRM LIABILITY
-process(data = d_process, y = "firm", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-## HUMAN LIABILITY
-process(data = d_process, y = "human", x = "label", 
-        m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
+}
 ## ================================================================================================================
 ##                                                 VISUALIZATION              
 ## ================================================================================================================
-dev.off()
+# dev.off()
 std.error <- function(x) sd(x)/sqrt(length(x))
 
 d |>

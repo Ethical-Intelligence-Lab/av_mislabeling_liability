@@ -32,6 +32,9 @@ pacman::p_load('ggplot2',         # plotting
                'effects'
 )
 
+# PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
+mediation <- FALSE
+
 ## ================================================================================================================
 ##                                                  PRE-PROCESSING                 
 ## ================================================================================================================
@@ -39,7 +42,9 @@ pacman::p_load('ggplot2',         # plotting
 ## read in data
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 d <- read.csv('data.csv') 
-source("../process.R")
+if(mediation) {
+  source("../process.R")
+}
 
 ## rename colnames
 ## and change condition entries
@@ -179,7 +184,7 @@ cohen.d(d_merged[d_merged$cond == "auto",]$human,
 d_merged$cond <- as.numeric(d_merged$cond)
 
 ## Simple Mediation
-
+if(mediation) {
 process(data = d_merged, y = "firm", x = "cond", 
         m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
@@ -187,7 +192,7 @@ process(data = d_merged, y = "firm", x = "cond",
 process(data = d_merged, y = "human", x = "cond", 
         m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
+}
 
 ## ================================================================================================================
 ##                                              DATA VIZUALIZATION              

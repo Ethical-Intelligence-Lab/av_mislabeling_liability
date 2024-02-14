@@ -35,7 +35,8 @@ pacman::p_load('tidyverse',       # most stuff
                "sjstats"
 )
 
-source('../process.r')
+mediation <- FALSE
+if(mediation) source('../process.r')
 
 
 ## ================================================================================================================
@@ -165,7 +166,7 @@ cohen.d(d[d$benefits == 'Present',]$firm,
         d[d$benefits == 'Absent',]$firm)
 
 ## Simple Mediation
-process(data = d_process, y = "firm", x = "label", 
+if(mediation) process(data = d_process, y = "firm", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
@@ -209,7 +210,7 @@ cohen.d(d[d$benefits == 'Present',]$human,
         d[d$benefits == 'Absent',]$human)
 
 ## Simple Mediation
-process(data = d_process, y = "human", x = "label", 
+if(mediation) process(data = d_process, y = "human", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 

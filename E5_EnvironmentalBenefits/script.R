@@ -35,7 +35,10 @@ pacman::p_load('tidyverse',       # most stuff
                "sjstats"
 )
 
-source('../process.R')
+# PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
+mediation <- FALSE
+
+if(mediation) source('../process.R')
 
 
 ## ================================================================================================================
@@ -149,7 +152,7 @@ cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
        d[d$benefits == 'Present' & d$label == 'co',]$firm)
 
 ## Simple Mediation
-process(data = d_process, y = "firm", x = "label", 
+if(mediation) process(data = d_process, y = "firm", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
@@ -182,22 +185,8 @@ cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$human,
        d[d$benefits == 'Present' & d$label == 'co',]$human)
 
 ## Simple Mediation
-process(data = d_process, y = "human", x = "label", 
+if(mediation) process(data = d_process, y = "human", x = "label", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-## ================================================================================================================
-##                                MODERATED MEDIATION PROCESS              
-## ================================================================================================================
-
-# FIRM 
-process(data = d_process, y = "firm", x = "label", w = "benefits",
-        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
-        contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
-
-# HUMAN 
-process(data = d_process, y = "human", x = "label", w = "benefits",
-        m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## ================================================================================================================
@@ -266,6 +255,8 @@ ggarrange(p2 + rremove("ylab") + rremove("xlab"),
           p1 + rremove("ylab") + rremove("xlab"),
           ncol = 2, common.legend = TRUE) |>
   annotate_figure( left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface = "bold")),
-                   bottom = textGrob("Environmental Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
+                   bottom = textGrob("Environmental Benefits Condition", gp = gpar(cex = .8, fontface = "bold"))) -> p
+
+p
 
 ggsave("env_benefits.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
