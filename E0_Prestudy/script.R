@@ -23,7 +23,8 @@ wapo <- read_xlsx("./data/ArticleCoding - Washington Post.xlsx", sheet = 1, skip
 nyp <- read_xlsx("./data/ArticleCoding - New York Post.xlsx", sheet = 1, skip = 2)
 
 # =====================================================================================
-#                                 PREPROCESSING
+#                                 PREPROCESSING 
+#                 This does not run since copyrighted data is included
 # =====================================================================================
 relevant_col <- c("Journal", "Categorization for Coder 1", "Categorization for Coder 2")
 
@@ -39,10 +40,13 @@ colnames(nyp) <- relevant_col
 ## Bind the dataframe
 df <- rbind(nyt, usa, wapo, wsj, nyp)
 
+write.csv(df, "data.csv", row.names = F)
 
 # =====================================================================================
 #                                 ANALYSIS
 # =====================================================================================
+## Cleaned data
+df <- read_csv("data.csv")
 
 ## Reliability of Coding
 cronbach.alpha(df[df$Journal == "New York Times", c(2,3)])
