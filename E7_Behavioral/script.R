@@ -35,7 +35,7 @@ pacman::p_load('tidyverse',       # most stuff
                "sjstats"
 )
 
-mediation <- T
+mediation <- FALSE
 if(mediation) source('../process.r')
 
 
@@ -284,10 +284,10 @@ ggplot(data = d_density, aes(color =`Marketing Label`, x=time_control )) +
   scale_color_grey() +
   ylab("Density") +
   xlab("Time to Take Control (s)") + 
-  annotate("rect", xmin = 5, xmax = 10, ymin = 0, ymax = .2,alpha = .1) +
-  annotate("text", x = 7.5, y = .08, label = "Vehicle approaches intersection", size = 2) +
-  annotate("rect", xmin = 15, xmax = 20, ymin = 0, ymax = .2,alpha = .1) +
-  annotate("text", x = 17.5, y = .19, label = "Vehicle approaches jaywalkers", size = 2) +
+  ggplot2::annotate("rect", xmin = 5, xmax = 10, ymin = 0, ymax = .2,alpha = .1) +
+  ggplot2::annotate("text", x = 7.5, y = .08, label = "Vehicle approaches intersection", size = 2) +
+  ggplot2::annotate("rect", xmin = 15, xmax = 20, ymin = 0, ymax = .2,alpha = .1) +
+  ggplot2::annotate("text", x = 17.5, y = .19, label = "Vehicle approaches jaywalkers", size = 2) +
   theme(legend.key = element_rect(fill = NA))
 
 ggsave("time_density.pdf", device = "pdf",width = 5.3, height = 3.7, units = "in")

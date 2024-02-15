@@ -130,7 +130,7 @@ t.test(df[!is.na(df$difficulty),]$difficulty , mu = 50)
 sd(df[!is.na(df$difficulty),]$difficulty)
 
 ## Difficulty correlation with automation level
-cor(df[!is.na(df$difficulty),]$difficulty, df[!is.na(df$difficulty),]$auto_level)
+cor.test(df[!is.na(df$difficulty),]$difficulty, df[!is.na(df$difficulty),]$auto_level)
 
 ## ================================================================================================================
 ##                                VISUALIZATION               

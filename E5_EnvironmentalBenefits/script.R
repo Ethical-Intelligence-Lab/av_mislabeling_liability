@@ -88,6 +88,13 @@ co$benefits <- ifelse(is.na(co$comp_4), "Absent", "Present")
 d <- rbind(auto,co)
 d <- d[!is.na(d$capability),]
 
+
+# COMPREHENSION CHECKS 3 & 4
+d |>
+  filter((comp_3 == 2 & label == "auto") | (comp_3 == 1 & label == "co")) -> d
+d |>
+  filter((comp_4 == 1 | is.na(comp_4))) -> d
+
 ## For PROCESS
 d$firm <- rowMeans(d[,c("r_soft", "l_firm")])
 d$human <- rowMeans(d[,c("r_human", "l_human")])
@@ -95,12 +102,6 @@ d$human <- rowMeans(d[,c("r_human", "l_human")])
 d_process <- d
 d_process$label <- as.numeric(as.factor(d_process$label))
 d_process$benefits <- as.numeric(as.factor(d_process$benefits))
-
-# COMPREHENSION CHECKS 3 & 4
-d |>
-  filter((comp_3 == 2 & label == "auto") | (comp_3 == 1 & label == "co")) -> d
-d |>
-  filter((comp_4 == 1 | is.na(comp_4))) -> d
 
 ## Number of final participants
 n_comprehension <- nrow(d); n_comprehension
