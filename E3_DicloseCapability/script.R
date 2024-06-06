@@ -87,8 +87,12 @@ n_original <- dim(d)[1]; n_original
 
 ## comprehension exclusions: 
 # remove responses from data frame that failed comprehension checks
-d <- subset(d, (d$comp_1 == 2 & d$comp_2 == 4))
+d <- subset(d, (d$comp_1 == 2))
+n_original - nrow(d)
+d <- subset(d, (d$comp_2 == 4))
+n_original - nrow(d)
 d <- subset(d, (d$comp_3 == 2 | d$comp_4 == 1 | d$comp_5 == 2 | d$comp_6 == 1 | d$comp_7 == 1 | d$comp_8 == 1))
+n_original - nrow(d)
 
 ## number of participants AFTER exclusions: 
 n_final <- dim(d)[1] # extracting number of rows only, not columns
@@ -337,7 +341,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Firm Liability", signif = c("+", "**", "ns"), ypos = c(80,80,95), yaxis=T) -> p4
+plot_did(dv = "Firm Liability", signif = c("*", "**", "ns"), ypos = c(80,80,95), yaxis=T) -> p4
 
 plot_did(dv = "Human Liability", signif = c("ns", "+", "ns"), ypos = c(95,95,108), yaxis=F) -> p3
 

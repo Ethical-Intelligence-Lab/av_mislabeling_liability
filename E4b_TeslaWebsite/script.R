@@ -151,7 +151,7 @@ df |>
   summarize(count = n())
 
 df_plot |>
-  mutate( Found = ifelse(found == 1, "TRUE", FALSE),
+  mutate( Found = ifelse(found == 1, "Yes", "No"),
           `Level of Automation` = auto_level) -> df_plot
 
 ## Participant Responses
