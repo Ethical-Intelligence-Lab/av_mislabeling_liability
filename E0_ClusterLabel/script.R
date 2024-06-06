@@ -53,6 +53,10 @@ d |>
 
 marketing_labels <- d_plot$Label
 
+# Remove Copilot and Autopilot for plotting purposes as labels
+marketing_labels[6] <- ""
+marketing_labels[5] <- ""
+
 ## Median
 dist_mat <- dist(d_plot$Median, method = 'euclidean')
 hclust_avg <- hclust(dist_mat, method = 'average') 
@@ -64,6 +68,8 @@ plot(hclust_avg, main = "Clusters of Marketing Labels",
 rect(xleft = 0.6, ybottom = -4.45, xright = 11.35, ytop = .4, lty = "dashed")
 rect(xleft = 11.65, ybottom = -4.45, xright = 19.35, ytop = .4, lty = "dashed")
 rect(xleft = 19.65, ybottom = -4.45, xright = 24.5, ytop = .4, lty = "dashed")
+text(x = 8, y = -1.2, substitute(paste(bold("Copilot"))), srt = 90,)
+text(x = 20, y = -1.4, substitute(paste(bold("Autopilot"))), srt = 90,)
 dev.off()
 
 
@@ -101,3 +107,11 @@ t.test(d[d$Cluster == 2,]$Capability, d[d$Cluster == 3,]$Capability)
 
 # First Cluster and Third
 t.test(d[d$Cluster == 1,]$Capability, d[d$Cluster == 3,]$Capability)
+
+## Autopilot
+mean(d[d$Label == "Autopilot",]$Capability)
+sd(d[d$Label == "Autopilot",]$Capability)
+
+## Copilot
+mean(d[d$Label == "Copilot",]$Capability)
+sd(d[d$Label == "Copilot",]$Capability)
