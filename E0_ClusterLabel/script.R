@@ -77,7 +77,7 @@ dev.off()
 #                             Analysis by Clusters
 ##=============================================================================
 
-first_cluster <- c("   Conditional Automation", "AcuraWatch",               
+first_cluster <- c("Conditional Automation", "AcuraWatch",               
                   "Apollo", "Copilot", "Drive Wise", "Eyesight Driver",          
                    "Lane Sense", "Mobile Teammate",
                    "Partial Automation", "Safety System+","Super Cruise")
@@ -101,12 +101,19 @@ d |>
 
 # First Cluster and Second
 t.test(d[d$Cluster == 1,]$Capability, d[d$Cluster == 2,]$Capability)
+sd(d[d$Cluster == 1,]$Capability)
+sd(d[d$Cluster == 2,]$Capability)
+
 
 # Second Cluster and Third
 t.test(d[d$Cluster == 2,]$Capability, d[d$Cluster == 3,]$Capability)
+sd(d[d$Cluster == 2,]$Capability)
+sd(d[d$Cluster == 3,]$Capability)
 
 # First Cluster and Third
 t.test(d[d$Cluster == 1,]$Capability, d[d$Cluster == 3,]$Capability)
+sd(d[d$Cluster == 1,]$Capability)
+sd(d[d$Cluster == 3,]$Capability)
 
 ## Autopilot
 mean(d[d$Label == "Autopilot",]$Capability)
