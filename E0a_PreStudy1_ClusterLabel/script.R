@@ -115,6 +115,9 @@ t.test(d[d$Cluster == 1,]$Capability, d[d$Cluster == 3,]$Capability)
 sd(d[d$Cluster == 1,]$Capability)
 sd(d[d$Cluster == 3,]$Capability)
 
+## t-test
+t.test(d[d$Label == "Autopilot",]$Capability, d[d$Label == "Copilot",]$Capability)
+
 ## Autopilot
 mean(d[d$Label == "Autopilot",]$Capability)
 sd(d[d$Label == "Autopilot",]$Capability)

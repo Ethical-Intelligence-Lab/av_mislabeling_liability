@@ -308,7 +308,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
 }
 
 plot_did(dv = "Human Liability", signif = c("*", "ns", "*"), yaxis=F) -> p1
-plot_did(dv = "Firm Liability", signif = c("*", "ns", "+"), ypos = c(80,80,94))  -> p2
+plot_did(dv = "Firm Liability", signif = c("+", "ns", "+"), ypos = c(80,80,94))  -> p2
 
 ggarrange(p2 + rremove("ylab") + rremove("xlab"),
           p1 + rremove("ylab") + rremove("xlab"),
