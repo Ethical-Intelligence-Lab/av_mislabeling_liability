@@ -57,12 +57,12 @@ marketing_labels <- d_plot$Label
 marketing_labels[6] <- ""
 marketing_labels[5] <- ""
 
-## Median
+## Median Dendrogram
 dist_mat <- dist(d_plot$Median, method = 'euclidean')
 hclust_avg <- hclust(dist_mat, method = 'average') 
 hclust_avg$labels <- marketing_labels
 
-pdf('Dendogram.pdf', width = 11, height = 5)
+pdf('MedianDendogram.pdf', width = 11, height = 5)
 plot(hclust_avg, main = "Clusters of Marketing Labels",
           ylab = "", xlab = "Marketing Label", sub = "")
 rect(xleft = 0.6, ybottom = -4.45, xright = 11.35, ytop = .4, lty = "dashed")
@@ -72,7 +72,24 @@ text(x = 8, y = -1.2, substitute(paste(bold("Copilot"))), srt = 90,)
 text(x = 20, y = -1.4, substitute(paste(bold("Autopilot"))), srt = 90,)
 dev.off()
 
+## Mean Dendrogram
+dist_mat <- dist(d_plot$Mean, method = 'euclidean')
+hclust_avg <- hclust(dist_mat, method = 'average') 
+hclust_avg$labels <- marketing_labels
 
+pdf('MeanDendogram.pdf', width = 11, height = 5)
+plot(hclust_avg, main = "Clusters of Marketing Labels",
+     ylab = "", xlab = "Marketing Label", sub = "")
+rect(xleft = 0.6, ybottom = -3.2, xright = 5.3, ytop = 1, lty = "dashed")
+rect(xleft = 5.5, ybottom = -3.2, xright = 15.2, ytop = 1, lty = "dashed")
+rect(xleft = 15.5, ybottom = -3.2, xright = 24.5, ytop = 1, lty = "dashed")
+text(x = 16, y = -.8, substitute(paste(bold("Copilot"))), srt = 90,)
+text(x = 2, y = -.8, substitute(paste(bold("Autopilot"))), srt = 90,)
+dev.off()
+
+
+plot(hclust_avg, main = "Clusters of Marketing Labels",
+     ylab = "", xlab = "Marketing Label", sub = "")
 ##=============================================================================
 #                             Analysis by Clusters
 ##=============================================================================
@@ -125,3 +142,5 @@ sd(d[d$Label == "Autopilot",]$Capability)
 ## Copilot
 mean(d[d$Label == "Copilot",]$Capability)
 sd(d[d$Label == "Copilot",]$Capability)
+
+
