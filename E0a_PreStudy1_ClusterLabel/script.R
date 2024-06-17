@@ -78,15 +78,15 @@ hclust_avg <- hclust(dist_mat, method = 'average')
 hclust_avg$labels <- marketing_labels
 
 pdf('MeanDendogram.pdf', width = 11, height = 5)
+hclust_avg$order <- rev(hclust_avg$order)
 plot(hclust_avg, main = "Clusters of Marketing Labels",
      ylab = "", xlab = "Marketing Label", sub = "")
-rect(xleft = 0.6, ybottom = -3.2, xright = 5.3, ytop = 1, lty = "dashed")
-rect(xleft = 5.5, ybottom = -3.2, xright = 15.2, ytop = 1, lty = "dashed")
-rect(xleft = 15.5, ybottom = -3.2, xright = 24.5, ytop = 1, lty = "dashed")
-text(x = 16, y = -.8, substitute(paste(bold("Copilot"))), srt = 90,)
-text(x = 2, y = -.8, substitute(paste(bold("Autopilot"))), srt = 90,)
+rect(xleft = 0.6, ybottom = -3.2, xright = 14.35, ytop = 1, lty = "dashed")
+rect(xleft = 14.55, ybottom = -3.2, xright = 19.35, ytop = 1, lty = "dashed")
+rect(xleft = 19.65, ybottom = -3.2, xright = 24.5, ytop = 1, lty = "dashed")
+text(x = 9, y = -.8, substitute(paste(bold("Copilot"))), srt = 90,)
+text(x = 23, y = -.8, substitute(paste(bold("Autopilot"))), srt = 90,)
 dev.off()
-
 
 plot(hclust_avg, main = "Clusters of Marketing Labels",
      ylab = "", xlab = "Marketing Label", sub = "")
