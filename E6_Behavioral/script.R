@@ -135,6 +135,15 @@ cronbach.alpha(d[, c("control", "hands_off", "watch", "nap")])
 cronbach.alpha(d[, c("unsafe_self", "worried_self", "unsafe_others", "worried_others", 
                      "likely_others", "likely_self", "concern_others", "concern_self")])
 
+# Perceived Capability
+t0 <- t.test(d[d$label == "auto",]$capability, 
+             d[d$label == "co",]$capability)
+t0
+
+sd(d[d$label == "auto",]$capability)
+sd(d[d$label == "co",]$capability)
+
+cohen.d(d[d$label == "auto",]$capability, d[d$label == "co",]$capability)
 
 # Distracted Intentions
 t1 <- t.test(d[d$label == "auto",]$behavior, d[d$label == "co",]$behavior, paired = FALSE)
