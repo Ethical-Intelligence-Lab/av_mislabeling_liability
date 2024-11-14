@@ -32,7 +32,9 @@ pacman::p_load('tidyverse',       # most stuff
                'rstatix',
                'effects',
                "Hmisc", 
-               "sjstats"
+               "sjstats",
+               'lavaan',
+               'semTools'
 )
 
 mediation <- FALSE
@@ -121,6 +123,25 @@ prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 
 cronbach.alpha(d[,c("r_soft", "l_firm")])
 cronbach.alpha(d[,c("r_human", "l_human")])
+
+# Discriminant Validity
+d |> mutate(
+  hr = -(100 - `r_human`),
+  hl = -(100 - `l_human`),
+  fr = `r_soft`,
+  fl = `l_firm`
+) -> d
+
+countf.model <- ' firm   =~ fr + fl
+                  human  =~ hr + hl '
+
+htmt(countf.model, d)
+
+## Covariance Matrix
+countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
+
+## HTMT using arithmetic mean
+htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
 # FIRM
 a <- aov(firm ~ as.factor(label) * as.factor(risks), data = d)

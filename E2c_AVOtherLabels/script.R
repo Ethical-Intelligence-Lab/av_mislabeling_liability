@@ -52,7 +52,7 @@ d |>
 
 ## Comp Check
 d |>
-  filter(comp_1 == 1 & comp_2 == 1) -> d
+  filter(comp_1 == 2 & comp_2 == 4 & comp_3 == 1) -> d
 
 nrow(d)
 
@@ -61,7 +61,7 @@ nrow(d)
 ## ================================================================================================================
 
 prop.table(table(d[d$gender == 1 | d$gender == 2,]$gender))[[1]]
-mean(d$age)
+mean(as.numeric(d$age), na.rm = T)
 
 table(d$label)
 
@@ -69,16 +69,16 @@ table(d$label)
 ##                                                 ANALYSIS                
 ## ================================================================================================================
 
-t.test(d[d$label == "Autopilot",]$automation_1,
-       d[d$label == "Copilot",]$automation_1)
+t.test(d[d$label == "Full Self-Driving",]$automation,
+       d[d$label == "Lane Sense",]$automation)
 
-sd(d[d$label == "Autopilot",]$automation_1)
-sd(d[d$label == "Copilot",]$automation_1)
+sd(d[d$label == "Full Self-Driving",]$automation)
+sd(d[d$label == "Lane Sense",]$automation)
 
-cohen.d(d[d$label == "Autopilot",]$automation_1,
-        d[d$label == "Copilot",]$automation_1)
+cohen.d(d[d$label == "Full Self-Driving",]$automation,
+        d[d$label == "Lane Sense",]$automation)
 
-cronbach.alpha(d[,c("software_liable_1", "software_resp_1")])
+cronbach.alpha(d[,c("firm_resp_1", "firm_liable_1")])
 cronbach.alpha(d[,c("human_liable_1", "human_resp_1" )])
 
 ## Discriminant Validity
@@ -86,8 +86,8 @@ cronbach.alpha(d[,c("human_liable_1", "human_resp_1" )])
 d |> mutate(
   hr = -(`human_resp_1` - 100),
   hl = -(`human_liable_1` - 100),
-  fr = `software_resp_1`,
-  fl = `software_liable_1`
+  fr = `firm_resp_1`,
+  fl = `firm_liable_1`
 ) -> d
 
 countf.model <- ' firm   =~ fr + fl
@@ -102,45 +102,44 @@ countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
 htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
 d$human <- (d$human_liable_1 + d$human_resp_1) / 2
-d$firm <-(d$software_liable_1 + d$software_resp_1) / 2
+d$firm <-(d$firm_liable_1 + d$firm_resp_1) / 2
 
 ### Firm Liability
 
-t.test(d[d$label == "Autopilot",]$firm,
-       d[d$label == "Copilot",]$firm)
+t.test(d[d$label == "Full Self-Driving",]$firm,
+       d[d$label == "Lane Sense",]$firm)
 
-sd(d[d$label == "Autopilot",]$firm)
-sd(d[d$label == "Copilot",]$firm)
+sd(d[d$label == "Full Self-Driving",]$firm)
+sd(d[d$label == "Lane Sense",]$firm)
 
-cohen.d(d[d$label == "Autopilot",]$firm,
-        d[d$label == "Copilot",]$firm)
+cohen.d(d[d$label == "Full Self-Driving",]$firm,
+        d[d$label == "Lane Sense",]$firm)
 
 ### Human Liability 
 
-t.test(d[d$label == "Autopilot",]$human,
-       d[d$label == "Copilot",]$human)
+t.test(d[d$label == "Full Self-Driving",]$human,
+       d[d$label == "Lane Sense",]$human)
 
-sd(d[d$label == "Autopilot",]$human)
-sd(d[d$label == "Copilot",]$human)
+sd(d[d$label == "Full Self-Driving",]$human)
+sd(d[d$label == "Lane Sense",]$human)
 
-cohen.d(d[d$label == "Autopilot",]$human,
-        d[d$label == "Copilot",]$human)
+cohen.d(d[d$label == "Full Self-Driving",]$human,
+        d[d$label == "Lane Sense",]$human)
 
 ## ================================================================================================================
 ##                                              PROCESS             
 ## ================================================================================================================
 
-
 d$cond <- as.numeric(as.factor(d$label))
 
 if(mediation) {
   process(data = d, y = "firm", x = "cond", 
-          m =c("automation_1"), model = 4, effsize = 1, total = 1, stand = 1, 
-          contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+          m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+          contrast =1, boot = 10000 , modelbt = 1, seed = 654321, conf = 97.06)
   
   process(data = d, y = "human", x = "cond", 
-          m =c("automation_1"), model = 4, effsize = 1, total = 1, stand = 1, 
-          contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
+          m =c("automation"), model = 4, effsize = 1, total = 1, stand = 1, 
+          contrast =1, boot = 10000 , modelbt = 1, seed = 654321, conf = 97.06)
 }
 
 ## ================================================================================================================
@@ -149,9 +148,9 @@ if(mediation) {
 
 # Renaming and labeling for plots
 d |>
-  select(cond,label, automation_1, firm, human) |>
+  select(cond,label, automation, firm, human) |>
   mutate(
-    `Label` = ifelse(cond == 1, "Autopilot", "Copilot"),
+    `Label` = ifelse(cond == 1, "Full Self-Driving", "Lane Sense"),
     `Firm Liability` = firm,
     `Human Liability` = human
   ) |>
@@ -175,7 +174,7 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
   geom_errorbar(aes(ymin=avg_value-(se_value*se_width), ymax=avg_value+(se_value*se_width)), position = position_dodge(width=.6), 
                 size=.25, color="black", width=.25) +
   geom_signif(
-    y_position = c(90), xmin = c(0.85, 1.85), xmax = c(1.15, 2.15),
+    y_position = c(95), xmin = c(0.85, 1.85), xmax = c(1.15, 2.15),
     annotation = c("***","***"), tip_length = 0.1, color='black', size = .25, textsize = 3.5 
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -191,42 +190,29 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
 
 p1
 
-# Plot Human Liability
-ggplot(data = d_plot, aes(x=factor(`Marketing Label`), y=avg_H)) +
-  geom_bar(stat="identity", alpha=.75) +
-  geom_point(size=.75, color="black") +
-  geom_errorbar(aes(ymin=avg_H-(se_H*se_width), ymax=avg_H+(se_H*se_width)), position = "dodge", 
-                size=.25, color="black", width=.75) +
-  geom_signif(
-    y_position = c(90), xmin = c("Autopilot"), xmax = c("Copilot"),
-    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
-  ) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=12),
-        axis.line.y = element_blank(), axis.ticks.y = element_blank(),
-        axis.text.y = element_blank()) +
-  ylab("") +
-  xlab("") +
-  ggtitle("Human Liability") +
-  scale_y_continuous(limits = c(0,100)) -> p2
-
-p2
-
 # Combine both figures
 ggarrange(p1,p2) |>
   annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = 1, fontsize=10, fontface="bold")))
 
 ggsave("liability.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
+d |>
+  group_by(label) |>
+  dplyr::summarize(
+    avg_C = mean(automation),
+    se_C = sd(automation)/sqrt(n())
+  ) |>
+  mutate( Label = label ) -> d_plot2
+  
+
 # Plot Level of Automation
-ggplot(data = d_plot, aes(x=factor(`Marketing Label`), y=avg_C)) +
+ggplot(data = d_plot2, aes(x=factor(`Label`), y=avg_C)) +
   geom_bar(stat="identity", alpha=.75) +
   geom_point(size=.75, color="black") +
   geom_errorbar(aes(ymin=avg_C-(se_C*se_width), ymax=avg_C+(se_C*se_width)), position = "dodge", 
                 size=.25, color="black", width=.75) +
   geom_signif(
-    y_position = c(90), xmin = c("Autopilot"), xmax = c("Copilot"),
+    y_position = c(6.5), xmin = c("Full Self-Driving"), xmax = c("Lane Sense"),
     annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -236,7 +222,7 @@ ggplot(data = d_plot, aes(x=factor(`Marketing Label`), y=avg_C)) +
   ylab("Mean Ratings") +
   xlab("") +
   ggtitle("Level of Automation") +
-  scale_y_continuous(limits = c(0,100)) -> p3
+  scale_y_continuous(limits = c(0,7)) -> p3
 
 p3
 

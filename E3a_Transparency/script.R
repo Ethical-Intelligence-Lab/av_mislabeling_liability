@@ -32,7 +32,9 @@ pacman::p_load('ggplot2',         # plotting
                'effects',
                "tidyverse",
                "grid",
-               'sjstats'
+               'sjstats',
+               'lavaan',
+               'semTools'
 )
 
 # PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
@@ -148,6 +150,26 @@ prop.table(table(d[d$gender < 3,]$gender))[1]
 
 cronbach.alpha(d[,c("resp_soft", "liable_firm")])
 cronbach.alpha(d[,c("resp_human", "liable_human")])
+
+## Discriminant Validity
+## Reverse Coding Human
+d |> mutate(
+  hr = -(`resp_human` - 100),
+  hl = -(`liable_human` - 100),
+  fr = `resp_soft`,
+  fl = `liable_firm`
+) -> d
+
+countf.model <- ' firm   =~ fr + fl
+                  human  =~ hr + hl '
+
+htmt(countf.model, d)
+
+## Covariance Matrix
+countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
+
+## HTMT using arithmetic mean
+htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
 d |>
   mutate(

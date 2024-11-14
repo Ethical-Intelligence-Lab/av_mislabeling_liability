@@ -32,14 +32,15 @@ pacman::p_load('tidyverse',       # most stuff
                'rstatix',
                'effects',
                "Hmisc", 
-               "sjstats"
+               "sjstats",
+               'lavaan',
+               'semTools'
 )
 
 # PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
 mediation <- FALSE
 
 if(mediation) source('../process.R')
-
 
 ## ================================================================================================================
 ##                                    Exclusions            
@@ -123,6 +124,26 @@ prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 
 cronbach.alpha(d[,c("r_soft", "l_firm")])
 cronbach.alpha(d[,c("r_human", "l_human")])
+
+## Discriminant Validity
+## Reverse Coding Human
+d |> mutate(
+  hr = -(`r_human` - 100),
+  hl = -(`l_human` - 100),
+  fr = `r_soft`,
+  fl = `l_firm`
+) -> d
+
+countf.model <- ' firm   =~ fr + fl
+                  human  =~ hr + hl '
+
+htmt(countf.model, d)
+
+## Covariance Matrix
+countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
+
+## HTMT using arithmetic mean
+htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
 # FIRM
 a <- aov(firm ~ as.factor(label) * as.factor(benefits), data = d)

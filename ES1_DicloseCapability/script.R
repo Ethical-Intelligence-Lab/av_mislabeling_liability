@@ -32,7 +32,9 @@ pacman::p_load('ggplot2',         # plotting
                'DescTools',        # get Cramer's V
                'rstatix',
                'effects',
-               'sjstats'
+               'sjstats',
+               'lavaan',
+               'semTools'
 )
 
 # PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
@@ -177,6 +179,27 @@ prop.table(table(d_merged$gender))[1] ## percentage of males
 
 cronbach.alpha(d_subset[, c("firm_responsibility","firm_liability")])
 cronbach.alpha(d_subset[, c("human_responsibility","human_liability")])
+
+
+## Discriminant Validity
+## Reverse Coding Human
+d_subset |> mutate(
+  hr = -(`human_responsibility` - 100),
+  hl = -(`human_liability` - 100),
+  fr = `firm_responsibility`,
+  fl = `firm_liability`
+) -> d
+
+countf.model <- ' firm   =~ fr + fl
+                  human  =~ hr + hl '
+
+htmt(countf.model, d)
+
+## Covariance Matrix
+countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
+
+## HTMT using arithmetic mean
+htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
 d_merged |>
   mutate(

@@ -29,7 +29,9 @@ pacman::p_load('ggplot2',         # plotting
                'nlme',            # get p values for mixed effect model
                'DescTools',        # get Cramer's V
                'rstatix',
-               'effects'
+               'effects',
+               'lavaan',
+               'semTools'
 )
 
 # PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
@@ -144,6 +146,29 @@ rm(d, d_subset)
 cronbach.alpha(d_merged[,c("software responsibility", "firm liability")])
 cronbach.alpha(d_merged[,c("human responsibility", "human liability")])
 
+# Discriminant Validity
+# Reverse Coding Human Responsibility/Liability
+
+d <- d_merged
+d |> mutate(
+  hr = -(100 - `human responsibility`),
+  hl = -(100 - `human liability`),
+  fr = `software responsibility`,
+  fl = `firm liability`
+) -> d
+
+countf.model <- ' firm   =~ fr + fl
+                  human  =~ hr + hl '
+
+htmt(countf.model, d)
+
+## Covariance Matrix
+countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
+
+## HTMT using arithmetic mean
+htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
+
+
 # Create composite measure and make condition as factor
 d_merged |>
   mutate(firm = (`software responsibility` + `firm liability`) / 2,
@@ -202,41 +227,43 @@ process(data = d_merged, y = "human", x = "cond",
 d_merged |>
   select(cond, automation, firm, human) |>
   mutate(
-    `Marketing Label` = ifelse(cond == 1, "Autopilot", "Copilot"),
-    Firm = firm,
-    Human = human
+    `Label` = ifelse(cond == 1, "Autopilot", "Copilot"),
+    `Firm Liability` = firm,
+    `Human Liability` = human
   ) |>
-  select(`Marketing Label`, Firm, Human) -> d_plot
+  select(`Label`, `Firm Liability`, `Human Liability`) |>
+  gather(key = "DV", value = "Value", `Firm Liability`, `Human Liability`) -> d_plot
 
 # Obtain mean and standard errors for condition and measure
 d_plot |>
-  group_by(`Marketing Label`) |>
+  group_by(`Label`, DV) |>
   summarize(
-    avg_F = mean(Firm),
-    avg_H = mean(Human),
-    se_F = sd(Firm)/sqrt(n()),
-    se_H = sd(Human)/sqrt(n())
+    avg_value = mean(Value),
+    se_value = sd(Value)/sqrt(n())
   ) -> d_plot
 
 se_width <- 1.96
 
 # Plot Firm Liability
-ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Copilot")), y=avg_F)) +
-  geom_bar(stat="identity", alpha=.75) +
-  geom_point(size=.75, color="black") +
-  geom_errorbar(aes(ymin=avg_F-(se_F*se_width), ymax=avg_F+(se_F*se_width)), position = "dodge", 
-                size=.25, color="black", width=.75) +
+ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
+  geom_bar(stat="identity", position="dodge", alpha=.75, width=.6) +
+  geom_point(position=position_dodge(width = .6), size=.5, color="black") +
+  geom_errorbar(aes(ymin=avg_value-(se_value*se_width), ymax=avg_value+(se_value*se_width)), position = position_dodge(width=.6), 
+                size=.25, color="black", width=.25) +
   geom_signif(
-    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
-    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
+    y_position = c(90), xmin = c(0.85, 1.85), xmax = c(1.15, 2.15),
+    annotation = c("***","***"), tip_length = 0.1, color='black', size = .25, textsize = 3.5 
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         plot.title = element_text(hjust = 0.5, face = "bold", size=12), 
-        axis.title=element_text(size=10,face="bold")) +
+        axis.title=element_text(size=10,face="bold"), legend.position = "top") +
   ylab("Mean Ratings") +
   xlab("") +
-  ggtitle("Firm Liability") -> p1
+  ggtitle("") +
+  scale_fill_grey() +
+  scale_color_grey() +
+  scale_y_continuous(limits = c(0,100), breaks = c(0,20,40,60,80,100))-> p1
 
 p1
 
