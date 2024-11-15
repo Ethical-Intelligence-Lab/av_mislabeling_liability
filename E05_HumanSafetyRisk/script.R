@@ -2,7 +2,7 @@
 ## ================================================================================================================
 ##                                 Harvard Business School, Ethical Intelligence Lab
 ## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 5c           
+##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 5b              
 ## ================================================================================================================
 
 ## clear workspace
@@ -79,10 +79,10 @@ colnames(auto) <- new_colnames
 colnames(co) <- new_colnames
 
 auto$label <- "auto"
-auto$benefits <- ifelse(is.na(auto$comp_4), "Absent", "Present")
+auto$risks <- ifelse(is.na(auto$comp_4), "Absent", "Present")
 
 co$label <- "co"
-co$benefits <- ifelse(is.na(co$comp_4), "Absent", "Present")
+co$risks <- ifelse(is.na(co$comp_4), "Absent", "Present")
 
 d <- rbind(auto,co)
 d <- d[!is.na(d$capability),]
@@ -99,7 +99,7 @@ d$human <- rowMeans(d[,c("r_human", "l_human")])
 
 d_process <- d
 d_process$label <- as.numeric(as.factor(d_process$label))
-d_process$benefits <- as.numeric(as.factor(d_process$benefits))
+d_process$risks <- as.numeric(as.factor(d_process$risks))
 
 ## Number of Final Participants
 n_comprehension <- nrow(d); n_comprehension
@@ -112,7 +112,7 @@ n_attention - n_comprehension
 ## ================================================================================================================
 
 # AGE
-mean(as.numeric(d$age), na.rm = T) 
+mean(d$age) 
 
 # GENDER
 prop_male <- prop.table(table(d$gender))[[1]]; prop_male
@@ -124,11 +124,10 @@ prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 cronbach.alpha(d[,c("r_soft", "l_firm")])
 cronbach.alpha(d[,c("r_human", "l_human")])
 
-## Discriminant Validity
-## Reverse Coding Human
+# Discriminant Validity
 d |> mutate(
-  hr = -(`r_human` - 100),
-  hl = -(`l_human` - 100),
+  hr = -(100 - `r_human`),
+  hl = -(100 - `l_human`),
   fr = `r_soft`,
   fl = `l_firm`
 ) -> d
@@ -144,48 +143,45 @@ countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
 ## HTMT using arithmetic mean
 htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
-d$firm <- rowMeans(d[,c("r_soft", "l_firm")])
-d$human <- rowMeans(d[,c("r_human", "l_human")])
-
 # FIRM
-a <- aov(firm ~ as.factor(label) * as.factor(benefits), data = d)
+a <- aov(firm ~ as.factor(label) * as.factor(risks), data = d)
 summary(a)
 anova_stats(a); anova_stats(a)$partial.etasq
 
 ## t-tests
 
 ### Absent Condition
-t1 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
-             d[d$benefits == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
+t1 <- t.test(d[d$risks == 'Absent' & d$label == 'auto',]$firm,
+             d[d$risks == 'Absent' & d$label == 'co',]$firm, paired = FALSE)
 t1
 
-sd(d[d$benefits == 'Absent' & d$label == 'auto',]$firm)
-sd(d[d$benefits == 'Absent' & d$label == 'co',]$firm)
+sd(d[d$risks == 'Absent' & d$label == 'auto',]$firm)
+sd(d[d$risks == 'Absent' & d$label == 'co',]$firm)
 
-cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$firm,
-        d[d$benefits == 'Absent' & d$label == 'co',]$firm)
+cohen.d(d[d$risks == 'Absent' & d$label == 'auto',]$firm,
+        d[d$risks == 'Absent' & d$label == 'co',]$firm)
 
 ### Present Condition
-t2 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
-             d[d$benefits == 'Present' & d$label == 'co',]$firm, paired = FALSE)
+t2 <- t.test(d[d$risks == 'Present' & d$label == 'auto',]$firm,
+              d[d$risks == 'Present' & d$label == 'co',]$firm, paired = FALSE)
 t2
 
-sd(d[d$benefits == 'Present' & d$label == 'auto',]$firm)
-sd(d[d$benefits == 'Present' & d$label == 'co',]$firm)
+sd(d[d$risks == 'Present' & d$label == 'auto',]$firm)
+sd(d[d$risks == 'Present' & d$label == 'co',]$firm)
 
-cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$firm,
-        d[d$benefits == 'Present' & d$label == 'co',]$firm)
+cohen.d(d[d$risks == 'Present' & d$label == 'auto',]$firm,
+       d[d$risks == 'Present' & d$label == 'co',]$firm)
 
 ## Direct effect of advertisement
-t3 <- t.test(d[d$benefits == 'Present',]$firm,
-             d[d$benefits == 'Absent',]$firm, paired = FALSE)
+t3 <- t.test(d[d$risks == 'Present',]$firm,
+             d[d$risks == 'Absent',]$firm, paired = FALSE)
 t3
 
-sd(d[d$benefits == 'Present',]$firm)
-sd(d[d$benefits == 'Absent',]$firm)
+sd(d[d$risks == 'Present',]$firm)
+sd(d[d$risks == 'Absent',]$firm)
 
-cohen.d(d[d$benefits == 'Present',]$firm,
-        d[d$benefits == 'Absent',]$firm)
+cohen.d(d[d$risks == 'Present',]$firm,
+        d[d$risks == 'Absent',]$firm)
 
 ## Simple Mediation
 if(mediation) process(data = d_process, y = "firm", x = "label", 
@@ -194,42 +190,42 @@ if(mediation) process(data = d_process, y = "firm", x = "label",
 
 
 # HUMAN
-a <- aov(human ~ as.factor(label) * as.factor(benefits), data = d)
+a <- aov(human ~ as.factor(label) * as.factor(risks), data = d)
 summary(a)
 anova_stats(a); anova_stats(a)$partial.etasq
 
 ## Absent Condition
-t1 <- t.test(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
-             d[d$benefits == 'Absent' & d$label == 'co',]$human, paired = FALSE)
+t1 <- t.test(d[d$risks == 'Absent' & d$label == 'auto',]$human,
+             d[d$risks == 'Absent' & d$label == 'co',]$human, paired = FALSE)
 t1
 
-sd(d[d$benefits == 'Absent' & d$label == 'auto',]$human)
-sd(d[d$benefits == 'Absent' & d$label == 'co',]$human)
+sd(d[d$risks == 'Absent' & d$label == 'auto',]$human)
+sd(d[d$risks == 'Absent' & d$label == 'co',]$human)
 
-cohen.d(d[d$benefits == 'Absent' & d$label == 'auto',]$human,
-        d[d$benefits == 'Absent' & d$label == 'co',]$human)
+cohen.d(d[d$risks == 'Absent' & d$label == 'auto',]$human,
+        d[d$risks == 'Absent' & d$label == 'co',]$human)
 
 ## Present Condition
-t2 <- t.test(d[d$benefits == 'Present' & d$label == 'auto',]$human,
-             d[d$benefits == 'Present' & d$label == 'co',]$human, paired = FALSE)
+t2 <- t.test(d[d$risks == 'Present' & d$label == 'auto',]$human,
+             d[d$risks == 'Present' & d$label == 'co',]$human, paired = FALSE)
 t2
 
-sd(d[d$benefits == 'Present' & d$label == 'auto',]$human)
-sd(d[d$benefits == 'Present' & d$label == 'co',]$human)
+sd(d[d$risks == 'Present' & d$label == 'auto',]$human)
+sd(d[d$risks == 'Present' & d$label == 'co',]$human)
 
-cohen.d(d[d$benefits == 'Present' & d$label == 'auto',]$human,
-        d[d$benefits == 'Present' & d$label == 'co',]$human)
+cohen.d(d[d$risks == 'Present' & d$label == 'auto',]$human,
+       d[d$risks == 'Present' & d$label == 'co',]$human)
 
 ## Direct Effects
-t2 <- t.test(d[d$benefits == 'Present',]$human,
-             d[d$benefits == 'Absent',]$human, paired = FALSE)
+t2 <- t.test(d[d$risks == 'Present',]$human,
+             d[d$risks == 'Absent',]$human, paired = FALSE)
 t2
 
-sd(d[d$benefits == 'Present',]$human)
-sd(d[d$benefits == 'Absent',]$human)
+sd(d[d$risks == 'Present',]$human)
+sd(d[d$risks == 'Absent',]$human)
 
-cohen.d(d[d$benefits == 'Present',]$human,
-        d[d$benefits == 'Absent',]$human)
+cohen.d(d[d$risks == 'Present',]$human,
+       d[d$risks == 'Absent',]$human)
 
 ## Simple Mediation
 if(mediation) process(data = d_process, y = "human", x = "label", 
@@ -237,7 +233,7 @@ if(mediation) process(data = d_process, y = "human", x = "label",
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## ================================================================================================================
-##                                VISUALIZATION               
+##                                VISUALIZATION              
 ## ================================================================================================================
 
 std.error <- function(x) sd(x)/sqrt(length(x))
@@ -251,9 +247,9 @@ d |>
       label == "auto" ~ "Autopilot",
       label == "co" ~ "Copilot"
     ),
-    Benefits = benefits
+    Risks = risks
   ) |>
-  group_by(`Marketing Label`, Benefits, DV) |>
+  group_by(`Marketing Label`, Risks, DV) |>
   summarise( 
     mean = mean(Value),
     se = std.error(Value) 
@@ -266,7 +262,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   
   se_width <- 1.96
   
-  ggplot(data = d_plot, aes(x=Benefits, y=mean, fill=`Marketing Label`)) +
+  ggplot(data = d_plot, aes(x=Risks, y=mean, fill=`Marketing Label`)) +
     geom_bar(stat="identity", position="dodge", alpha=.75) +
     geom_errorbar(aes(ymin=mean-(se*se_width), ymax=mean+(se*se_width)), position = position_dodge(width=.9), 
                   size=.25, color="black", width=.5) +
@@ -282,7 +278,7 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
     scale_fill_grey() +
     scale_color_grey() +
     ggtitle(dv) +
-    xlab("Benefits") +
+    xlab("Risks") +
     ylab("Response") +
     scale_y_continuous(limits = c(0,118), breaks = c(0,20,40,60,80,100)) -> p
   
@@ -296,13 +292,51 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(10
   return(p)
 }
 
-plot_did(dv = "Human Liability", signif = c("**", "**", "ns"), yaxis=F) -> p1
-plot_did(dv = "Firm Liability", signif = c("***", "**", "ns"), yaxis=T)  -> p2
+plot_did(dv = "Human Liability", signif = c("ns", "***", "*"), yaxis=F) -> p1
+plot_did(dv = "Firm Liability", signif = c("***", "**", "ns"))  -> p2
 
 ggarrange(p2 + rremove("ylab") + rremove("xlab"),
           p1 + rremove("ylab") + rremove("xlab"),
           ncol = 2, common.legend = TRUE) |>
   annotate_figure( left = textGrob("Mean Ratings", rot = 90, vjust = 1, gp = gpar(cex = .8, fontface = "bold")),
-                   bottom = textGrob("AV Safety Benefits Condition", gp = gpar(cex = .8, fontface = "bold")))
+                   bottom = textGrob("Human Safety Risks Condition", gp = gpar(cex = .8, fontface = "bold")))
 
-ggsave("av_safety_benefits.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+ggsave("human_safety_risks.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+d |>
+  gather(key = "DV", value = "Value", firm, human) |>
+  group_by(risks, DV) |>
+  dplyr::summarize(
+    avg_value = mean(Value),
+    se_value = std.error(Value) 
+  ) |>
+  mutate(
+    `Human Safety Risks` = risks,
+    DV = ifelse(DV == "firm", "Firm Liability", "Human Liability")
+  ) -> d_plot2
+
+se_width <- 1.96 
+
+ggplot(data = d_plot2, aes(fill=`Human Safety Risks`, y=avg_value, x = DV)) +
+  geom_bar(stat="identity", position="dodge", alpha=.75, width=.6) +
+  geom_point(position=position_dodge(width = .6), size=.5, color="black") +
+  geom_errorbar(aes(ymin=avg_value-(se_value*se_width), ymax=avg_value+(se_value*se_width)), position = position_dodge(width=.6), 
+                size=.25, color="black", width=.25) +
+  geom_signif(
+    y_position = c(90), xmin = c(0.85, 1.85), xmax = c(1.15, 2.15),
+    annotation = c(".","**"), tip_length = 0.1, color='black', size = .25, textsize = 3.5 
+  ) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, face = "bold", size=12), 
+        axis.title=element_text(size=10,face="bold"), legend.position = "top") +
+  ylab("Mean Ratings") +
+  xlab("") +
+  ggtitle("") +
+  scale_fill_grey() +
+  scale_color_grey() +
+  scale_y_continuous(limits = c(0,100), breaks = c(0,20,40,60,80,100)) -> p
+
+p
+
+ggsave("backfiring.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")

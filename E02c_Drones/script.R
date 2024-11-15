@@ -155,21 +155,21 @@ d |>
     `Firm Liability` = firm,
     `Human Liability` = human
   ) |>
-  select(`Label`, `Firm Liability`, `Human Liability`) |>
-  gather(key = "DV", value = "Value", `Firm Liability`, `Human Liability`) -> d_plot
+  select(`Label`, `Firm Liability`, `Human Liability`)  -> d_plot
 
 # Obtain mean and standard errors for condition and measure
 d_plot |>
+  gather(key = "DV", value = "Value", `Firm Liability`, `Human Liability`) |>
   dplyr::group_by(`Label`, DV) |>
   dplyr::summarize(
     avg_value = mean(Value),
     se_value = sd(Value)/sqrt(n())
-  ) -> d_plot
+  ) -> d_plot2
 
 se_width <- 1.96
 
 # Plot Firm Liability
-ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
+ggplot(data = d_plot2, aes(fill=`Label`, y=avg_value, x = DV)) +
   geom_bar(stat="identity", position="dodge", alpha=.75, width=.6) +
   geom_point(position=position_dodge(width = .6), size=.5, color="black") +
   geom_errorbar(aes(ymin=avg_value-(se_value*se_width), ymax=avg_value+(se_value*se_width)), position = position_dodge(width=.6), 
@@ -191,36 +191,11 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
 
 p1
 
-# Plot Human Liability
-ggplot(data = d_plot, aes(x=factor(`Marketing Label`), y=avg_H)) +
-  geom_bar(stat="identity", alpha=.75) +
-  geom_point(size=.75, color="black") +
-  geom_errorbar(aes(ymin=avg_H-(se_H*se_width), ymax=avg_H+(se_H*se_width)), position = "dodge", 
-                size=.25, color="black", width=.75) +
-  geom_signif(
-    y_position = c(90), xmin = c("Autopilot"), xmax = c("Copilot"),
-    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
-  ) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=12),
-        axis.line.y = element_blank(), axis.ticks.y = element_blank(),
-        axis.text.y = element_blank()) +
-  ylab("") +
-  xlab("") +
-  ggtitle("Human Liability") +
-  scale_y_continuous(limits = c(0,100)) -> p2
-
-p2
-
-# Combine both figures
-ggarrange(p1,p2) |>
-  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = 1, fontsize=10, fontface="bold")))
 
 ggsave("liability.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 
 # Plot Level of Automation
-ggplot(data = d_plot, aes(x=factor(`Marketing Label`), y=avg_C)) +
+ggplot(data = d_plot, aes(x=factor(`Label`), y=avg_C)) +
   geom_bar(stat="identity", alpha=.75) +
   geom_point(size=.75, color="black") +
   geom_errorbar(aes(ymin=avg_C-(se_C*se_width), ymax=avg_C+(se_C*se_width)), position = "dodge", 

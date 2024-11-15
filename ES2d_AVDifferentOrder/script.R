@@ -24,11 +24,13 @@ pacman::p_load('tidyverse',
                'Hmisc',            # get p values for mixed effect model
                'DescTools',        # get Cramer's V
                'rstatix',
-               'effects'
+               'effects',
+               'lavaan',
+               'semTools'
 )
 
 # PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
-mediation <- T
+mediation <- F
 if(mediation) {
   source("../process.R")
 }
@@ -173,7 +175,7 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
                 size=.25, color="black", width=.25) +
   geom_signif(
     y_position = c(95), xmin = c(0.85, 1.85), xmax = c(1.15, 2.15),
-    annotation = c("ns","ns"), tip_length = 0.1, color='black', size = .25, textsize = 3.5 
+    annotation = c("**","**"), tip_length = 0.1, color='black', size = .25, textsize = 3.5 
   ) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
