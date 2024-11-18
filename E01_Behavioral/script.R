@@ -32,7 +32,9 @@ pacman::p_load('tidyverse',       # most stuff
                'rstatix',
                'effects',
                "Hmisc", 
-               "sjstats"
+               "sjstats",
+               'lavaan',
+               'semTools'
 )
 
 mediation <- FALSE
@@ -134,6 +136,28 @@ prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 cronbach.alpha(d[, c("control", "hands_off", "watch", "nap")])
 cronbach.alpha(d[, c("unsafe_self", "worried_self", "unsafe_others", "worried_others", 
                      "likely_others", "likely_self", "concern_others", "concern_self")])
+
+## Discriminant Analysis
+## Reverse Coding
+d |>
+  mutate(
+    control = - (control - 100),
+    hands_off = - (hands_off - 100),
+    watch = - (watch - 100),
+    nap = - (nap - 100)
+  ) -> d_htmt
+
+countf.model <- ' behavior   =~ control + hands_off + watch + nap
+                  risk =~ unsafe_self + worried_self + unsafe_others + worried_others + likely_others + likely_self + concern_others + concern_self '
+
+htmt(countf.model, d_htmt)
+
+## Covariance Matrix
+countf.cov <- cov(d_htmt[, c("control", "hands_off", "watch", "nap", "time_control", "unsafe_self", "worried_self", "unsafe_others", "worried_others", 
+                        "likely_others", "likely_self", "concern_others", "concern_self")])
+
+## HTMT using arithmetic mean
+htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
 # Perceived Capability
 t0 <- t.test(d[d$label == "auto",]$capability, 

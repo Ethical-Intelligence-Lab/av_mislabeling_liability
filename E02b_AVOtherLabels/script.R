@@ -30,7 +30,7 @@ pacman::p_load('tidyverse',
 )
 
 # PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
-mediation <- F
+mediation <- T
 if(mediation) {
   source("../process.R")
 }
@@ -186,13 +186,9 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
   ggtitle("") +
   scale_fill_grey() +
   scale_color_grey() +
-  scale_y_continuous(limits = c(0,100), breaks = c(0,20,40,60,80,100))-> p1
+  scale_y_continuous(limits = c(0,100), breaks = c(0,20,40,60,80,100)) -> p1
 
 p1
-
-# Combine both figures
-ggarrange(p1,p2) |>
-  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = 1, fontsize=10, fontface="bold")))
 
 ggsave("liability.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
 

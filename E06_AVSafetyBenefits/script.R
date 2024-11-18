@@ -121,6 +121,8 @@ prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 ##                               Analysis              
 ## ================================================================================================================
 
+
+
 cronbach.alpha(d[,c("r_soft", "l_firm")])
 cronbach.alpha(d[,c("r_human", "l_human")])
 
