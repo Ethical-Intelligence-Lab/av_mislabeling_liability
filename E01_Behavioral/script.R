@@ -1,14 +1,5 @@
-
-## ================================================================================================================
-##                                 Harvard Business School, Ethical Intelligence Lab
-## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 7               
-## ================================================================================================================
-
 ## clear workspace
 rm(list = ls()) 
-
-# options(download.file.method="libcurl")
 
 ## install packages
 if (!require(pacman)) {install.packages("pacman")}
@@ -39,7 +30,6 @@ pacman::p_load('tidyverse',       # most stuff
 
 mediation <- FALSE
 if(mediation) source('../process.r')
-
 
 ## ================================================================================================================
 ##                                Exclusions and Pre-processing               
@@ -136,28 +126,6 @@ prop_male <- prop.table(table(d$gender))[[1]]; prop_male
 cronbach.alpha(d[, c("control", "hands_off", "watch", "nap")])
 cronbach.alpha(d[, c("unsafe_self", "worried_self", "unsafe_others", "worried_others", 
                      "likely_others", "likely_self", "concern_others", "concern_self")])
-
-## Discriminant Analysis
-## Reverse Coding
-d |>
-  mutate(
-    control = - (control - 100),
-    hands_off = - (hands_off - 100),
-    watch = - (watch - 100),
-    nap = - (nap - 100)
-  ) -> d_htmt
-
-countf.model <- ' behavior   =~ control + hands_off + watch + nap
-                  risk =~ unsafe_self + worried_self + unsafe_others + worried_others + likely_others + likely_self + concern_others + concern_self '
-
-htmt(countf.model, d_htmt)
-
-## Covariance Matrix
-countf.cov <- cov(d_htmt[, c("control", "hands_off", "watch", "nap", "time_control", "unsafe_self", "worried_self", "unsafe_others", "worried_others", 
-                        "likely_others", "likely_self", "concern_others", "concern_self")])
-
-## HTMT using arithmetic mean
-htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
 # Perceived Capability
 t0 <- t.test(d[d$label == "auto",]$capability, 
@@ -270,8 +238,6 @@ plot_did <- function(df=d_plot, dv, signif=c("*","*","*"), yaxis=TRUE, ypos=c(40
     ggtitle(dv) +
     xlab("Marketing Label") +
     ylab("Response") -> p
-  
-   #+ scale_y_continuous(limits = c(0,118), breaks = c(0,20,40,60,80,100)) -> p
   
   if(!yaxis) {
     p <- p +

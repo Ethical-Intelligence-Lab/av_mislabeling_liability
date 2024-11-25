@@ -40,6 +40,8 @@ if(mediation) {
 ## ================================================================================================================
 
 ## read in data
+# set working directory to current directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 d <- read_csv('data.csv')
 d <- d[-c(1,2),]
 
@@ -223,4 +225,3 @@ ggplot(data = d_plot2, aes(x=factor(`Label`), y=avg_C)) +
 p3
 
 ggsave("level_of_automation.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-

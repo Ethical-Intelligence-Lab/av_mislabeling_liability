@@ -27,12 +27,12 @@ pacman::p_load('tidyverse',
                'effects',
 )
 
-
 ## ================================================================================================================
 ##                                                  PRE-PROCESSING                 
 ## ================================================================================================================
 
 ## read in data
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 d <- read_csv('data.csv')
 d <- d[-c(1,2),]
 
@@ -61,26 +61,37 @@ mean(d$age)
 ##                                                 ANALYSIS                
 ## ================================================================================================================
 
-t.test(d$automation, mu = 2)
+## Correct Level of Automation
+sum(d$automation == 2)
+sum(d$automation == 2)/(length(d$automation))
 
+## Higher than Level 2
+sum(d$automation > 2)
+sum(d$automation > 2)/(length(d$automation))
+
+## t-test against NULL == 2
+t.test(d$automation, mu = 2)
+sd(d$automation)
+
+## Aware of Autopilot
 t.test(d[d$aware == 2, ]$automation,
        d[d$aware == 3, ]$automation)
 
+## Used Autopilot
 t.test(d[d$used == 2, ]$automation,
        d[d$used == 3, ]$automation)
 
+## Made Purchase Themselves
 t.test(d[d$purchase == 1, ]$automation,
        d[d$purchase == 2, ]$automation)
 
+## Is the Primary Driver 
 t.test(d[d$drive == 1, ]$automation,
        d[d$drive == 2, ]$automation)
-
-sum(d$automation == 2)/length(d$automation)
 
 ## ================================================================================================================
 ##                                              DATA VIZUALIZATION              
 ## ================================================================================================================
-
 
 d |>
   group_by(automation) |>
@@ -96,8 +107,7 @@ ggplot(data = d_plot, aes(x=`Level of Automation`, y = count)) +
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         plot.title = element_text(hjust = 0.5, face = "bold", size = 10), legend.position = "top",
         axis.title = element_text(face="bold"), text = element_text(face="bold", size=10)) +
-  scale_x_discrete(name ="Level of Automation", 
-                   limits = 1:6)  +
+  scale_x_discrete(name ="Level of Automation", limits = 1:6)  +
   ylab("Number of Responses") -> p
 
 p

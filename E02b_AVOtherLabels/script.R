@@ -30,7 +30,7 @@ pacman::p_load('tidyverse',
 )
 
 # PROCESS Analysis (Set TRUE if you wish to run PROCESS code)
-mediation <- T
+mediation <- FALSE
 if(mediation) {
   source("../process.R")
 }
@@ -40,6 +40,7 @@ if(mediation) {
 ## ================================================================================================================
 
 ## read in data
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 d <- read_csv('data.csv')
 d <- d[-c(1,2),]
 
@@ -69,6 +70,7 @@ table(d$label)
 ##                                                 ANALYSIS                
 ## ================================================================================================================
 
+## Capability 
 t.test(d[d$label == "Full Self-Driving",]$automation,
        d[d$label == "Lane Sense",]$automation)
 
@@ -191,36 +193,3 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
 p1
 
 ggsave("liability.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-
-d |>
-  group_by(label) |>
-  dplyr::summarize(
-    avg_C = mean(automation),
-    se_C = sd(automation)/sqrt(n())
-  ) |>
-  mutate( Label = label ) -> d_plot2
-  
-
-# Plot Level of Automation
-ggplot(data = d_plot2, aes(x=factor(`Label`), y=avg_C)) +
-  geom_bar(stat="identity", alpha=.75) +
-  geom_point(size=.75, color="black") +
-  geom_errorbar(aes(ymin=avg_C-(se_C*se_width), ymax=avg_C+(se_C*se_width)), position = "dodge", 
-                size=.25, color="black", width=.75) +
-  geom_signif(
-    y_position = c(6.5), xmin = c("Full Self-Driving"), xmax = c("Lane Sense"),
-    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
-  ) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=12), 
-        axis.title=element_text(size=10,face="bold")) +
-  ylab("Mean Ratings") +
-  xlab("") +
-  ggtitle("Level of Automation") +
-  scale_y_continuous(limits = c(0,7)) -> p3
-
-p3
-
-ggsave("level_of_automation.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-

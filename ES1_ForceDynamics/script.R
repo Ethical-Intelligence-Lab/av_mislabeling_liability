@@ -1,10 +1,3 @@
-
-## ================================================================================================================
-##                                 Harvard Business School, Ethical Intelligence Lab
-## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 1b               
-## ================================================================================================================
-
 ## clear workspace
 rm(list = ls()) 
 
@@ -34,8 +27,6 @@ pacman::p_load('tidyverse',       # most stuff
                "Hmisc", 
                "sjstats"
 )
-
-
 
 ## ================================================================================================================
 ##                                Exclusions               
@@ -67,9 +58,6 @@ df |>
 
 ## Final Sample
 n_comprehension <- nrow(df); n_comprehension
-
-## Nummber excluded
-n_attention - n_comprehension
 
 ## ================================================================================================================
 ##                                Preprocessing               
@@ -139,7 +127,7 @@ sd(d[d$condition == "co", ]$magnitude)
 cohen.d(d[d$condition == "auto", ]$magnitude, d[d$condition == "co", ]$magnitude)
 
 ## correlation
-cor(d$capability, d$magnitude)
+cor.test(d$capability, d$magnitude)
 
 ## ================================================================================================================
 ##                                      End of Analysis               

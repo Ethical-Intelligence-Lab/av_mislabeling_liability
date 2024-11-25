@@ -1,3 +1,4 @@
+## clear global env
 rm(list = ls())
 
 if (!require(pacman)) {install.packages("pacman")}
@@ -35,6 +36,7 @@ mean(df$age[df$age < 1000])
 ##=============================================================================
 #                             Plot Dendograms
 ##=============================================================================
+## Marketing labels
 d <- df[,24:48]
 
 colnames(d) <- marketing_labels
@@ -90,6 +92,7 @@ dev.off()
 
 plot(hclust_avg, main = "Clusters of Marketing Labels",
      ylab = "", xlab = "Marketing Label", sub = "")
+
 ##=============================================================================
 #                             Analysis by Clusters
 ##=============================================================================
@@ -120,7 +123,6 @@ d |>
 t.test(d[d$Cluster == 1,]$Capability, d[d$Cluster == 2,]$Capability)
 sd(d[d$Cluster == 1,]$Capability)
 sd(d[d$Cluster == 2,]$Capability)
-
 
 # Second Cluster and Third
 t.test(d[d$Cluster == 2,]$Capability, d[d$Cluster == 3,]$Capability)

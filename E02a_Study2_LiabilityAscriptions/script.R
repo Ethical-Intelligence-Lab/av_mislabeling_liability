@@ -1,9 +1,4 @@
-## ================================================================================================================
-##                                 Harvard Business School, Ethical Intelligence Lab
-## ================================================================================================================
-##                                DATA ANALYSIS | AV Label STUDY | EXPERIMENT 2               
-## ================================================================================================================
-## clear workspace
+# clear workspace
 rm(list = ls()) 
 
 ## install packages
@@ -168,7 +163,6 @@ countf.cov <- cov(d[, c("fr", "fl", "hr", "hl")])
 ## HTMT using arithmetic mean
 htmt(countf.model, sample.cov = countf.cov, htmt2 = FALSE)
 
-
 # Create composite measure and make condition as factor
 d_merged |>
   mutate(firm = (`software responsibility` + `firm liability`) / 2,
@@ -267,32 +261,7 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
 
 p1
 
-# Plot Human Liability
-ggplot(data = d_plot, aes(x=factor(`Marketing Label`, level = c("Autopilot", "Copilot")), y=avg_H)) +
-  geom_bar(stat="identity", alpha=.75) +
-  geom_point(size=.75, color="black") +
-  geom_errorbar(aes(ymin=avg_H-(se_H*se_width), ymax=avg_H+(se_H*se_width)), position = "dodge", 
-                size=.25, color="black", width=.75) +
-  geom_signif(
-    y_position = c(100), xmin = c("Autopilot"), xmax = c( "Copilot"),
-    annotation = c("*"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
-  ) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=12),
-        axis.line.y = element_blank(), axis.ticks.y = element_blank(),
-        axis.text.y = element_blank()) +
-  ylab("") +
-  xlab("") +
-  ggtitle("Human Liability") -> p2
-
-p2
-
-# Combine both figures
-ggarrange(p1,p2) |>
-  annotate_figure(bottom = textGrob("Marketing Label", gp = gpar(cex = 1, fontsize=10, fontface="bold")))
-
-ggsave("liability_ascriptions.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+ggsave("liability_ascriptions.png", device = "png",width = 5.3, height = 3.7, units = "in")
 
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 

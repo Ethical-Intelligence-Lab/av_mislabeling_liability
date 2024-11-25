@@ -40,6 +40,7 @@ if(mediation) {
 ## ================================================================================================================
 
 ## read in data
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 d <- read_csv('data.csv')
 d <- d[-c(1,2),]
 
@@ -49,6 +50,8 @@ d |>
 ## Attention Check
 d |>
   filter(att_1 == 2 & att_2 == 5) -> d
+
+nrow(d)
 
 ## Comp Check
 d |>
@@ -191,29 +194,4 @@ ggplot(data = d_plot2, aes(fill=`Label`, y=avg_value, x = DV)) +
 
 p1
 
-
 ggsave("liability.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-
-# Plot Level of Automation
-ggplot(data = d_plot, aes(x=factor(`Label`), y=avg_C)) +
-  geom_bar(stat="identity", alpha=.75) +
-  geom_point(size=.75, color="black") +
-  geom_errorbar(aes(ymin=avg_C-(se_C*se_width), ymax=avg_C+(se_C*se_width)), position = "dodge", 
-                size=.25, color="black", width=.75) +
-  geom_signif(
-    y_position = c(90), xmin = c("Autopilot"), xmax = c("Copilot"),
-    annotation = c("***"), tip_length = 0.1, color='black', size = .5, textsize = 3.5
-  ) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust = 0.5, face = "bold", size=12), 
-        axis.title=element_text(size=10,face="bold")) +
-  ylab("Mean Ratings") +
-  xlab("") +
-  ggtitle("Level of Automation") +
-  scale_y_continuous(limits = c(0,100)) -> p3
-
-p3
-
-ggsave("level_of_automation.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
-

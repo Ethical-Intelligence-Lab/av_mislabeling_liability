@@ -1,8 +1,3 @@
-## ================================================================================================================
-##                                 Harvard Business School, Ethical Intelligence Lab
-## ================================================================================================================
-##                                DATA ANALYSIS | AV LABEL STUDY | EXPERIMENT 3 Disclosure               
-## ================================================================================================================
 ## clear workspace
 rm(list = ls()) 
 
@@ -179,7 +174,6 @@ prop.table(table(d_merged$gender))[1] ## percentage of males
 
 cronbach.alpha(d_subset[, c("firm_responsibility","firm_liability")])
 cronbach.alpha(d_subset[, c("human_responsibility","human_liability")])
-
 
 ## Discriminant Validity
 ## Reverse Coding Human
