@@ -193,7 +193,7 @@ cohen.d(d[d$transparency == 'no'& d$label == 'auto',]$firm,
 
 ### Transparent Condition
 t2 <- t.test(d[d$transparency == 'yes'& d$label == 'auto',]$firm,
-             d[d$transparency == 'yes'& d$label == 'co',]$firm, paired = FALSE)
+             d[d$transparency == 'no'& d$label == 'auto',]$firm, paired = FALSE)
 t2
 
 sd(d[d$transparency == 'yes'& d$label == 'auto',]$firm)
@@ -261,8 +261,40 @@ process(data = d_process, y = "human", x = "label",
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 }
+
 ## ================================================================================================================
 ##                                                 VISUALIZATION              
+## ================================================================================================================
+d |>
+  mutate(
+    Label = ifelse( label == "co", "Copilot", "Autopilot"),
+    `Firm Liability` = firm,
+    Transparency = ifelse(transparency == "no", "Opaque", "Transparent")
+  ) -> d_plot
+
+ggplot(d_plot, aes(x = Label, y = `Firm Liability`, fill = Transparency)) +
+  stat_summary(fun = mean, geom = "bar", alpha = 0.5,  position="dodge") +  # Bar plot
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.5, position = position_dodge(width=.9)) +   # Error bars
+  geom_jitter(alpha = 0.2, size = .1, color = "#00003B", position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.9)) +  # Individual data points
+  scale_fill_grey() +
+  scale_color_grey() +
+  theme_classic() + 
+  theme(text = element_text(face = "bold"), plot.title = element_text(hjust = 0.5, size=10), legend.position = "top", legend.title = element_blank(), legend.text = element_text(hjust = 0.5, size=8)) +
+  xlab("Label") +
+  ylab("Ratings") +
+  ggtitle("Firm Liability") +
+  geom_signif(
+    y_position = c(107,107,120), xmin = c(0.8, 1.8, 1.0), xmax = c(1.2, 2.2, 2.0),
+    annotation = c("***", "***", "."), tip_length = 0.03, color='black', size = .25, textsize = 3.5 
+  )  +
+  scale_y_continuous(limits = c(0,125), breaks = c(0,20,40,60,80,100)) -> p1
+
+p1
+
+ggsave("FirmTransparency.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+## ================================================================================================================
+##                                                 VISUALIZATION (OLD)          
 ## ================================================================================================================
 # dev.off()
 std.error <- function(x) sd(x)/sqrt(length(x))

@@ -271,6 +271,54 @@ if(mediation) {
 ##                                              DATA VIZUALIZATION              
 ## ================================================================================================================
 
+d |>
+  mutate(
+    Advertisement = ifelse( ad == "no", "Absent", "Present"),
+    `Firm Liability` = firm
+  ) -> d_plot
+
+ggplot(d_plot, aes(x = Advertisement, y = `Firm Liability`)) +
+  stat_summary(fun = mean, geom = "bar",, alpha = 0.5) +  # Bar plot
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.5) +   # Error bars
+  geom_jitter(width = 0.2, alpha = 0.15, size = .1, color = "#00003B") +  # Individual data points
+  scale_fill_grey() +
+  scale_color_grey() +
+  theme_classic() + 
+  geom_signif(comparisons = list(c("Absent", "Present")), map_signif_level = TRUE, , test = "t.test") +
+  theme(text = element_text(face = "bold"), plot.title = element_text(hjust = 0.5, size=10)) +
+  xlab("") +
+  ylab("") +
+  ggtitle("Firm Liability") -> p1
+
+p1
+
+ggplot(d_plot, aes(x = Advertisement, y = `automation`)) +
+  stat_summary(fun = mean, geom = "bar",, alpha = 0.5) +  # Bar plot
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.5) +   # Error bars
+  geom_jitter(width = 0.2, alpha = 0.15, size = .1, height = 0.1, , color = "#00003B") +  # Individual data points
+  scale_fill_grey() +
+  scale_color_grey() +
+  theme_classic() + 
+  geom_signif(comparisons = list(c("Absent", "Present")), map_signif_level = TRUE, test = "t.test", y_position = 6.5) +
+  theme(text = element_text(face = "bold"), plot.title = element_text(hjust = 0.5, size=10)) +
+  xlab("") +
+  ylab("") +
+  ggtitle("Perceived Level of Capability") -> p2
+
+p2
+
+p <- ggarrange(p2, p1, nrow = 1, ncol = 2)
+
+annotate_figure(p,
+                left = text_grob("Ratings", color = "black", face = "bold", size = 10, rot = 90, vjust = 2.2, hjust = .2),
+                bottom = text_grob("Advertisement", size = 10, vjust = -1.8, face = "bold"))
+
+ggsave("LiabilityAscriptions.png", device = "png",width = 8.3, height = 4.3, units = "in")
+
+## ================================================================================================================
+##                                              DATA VIZUALIZATION  (OLD)            
+## ================================================================================================================
+
 std.error <- function(x) sd(x)/sqrt(length(x))
 
 d |>
