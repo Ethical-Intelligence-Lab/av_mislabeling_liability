@@ -193,3 +193,24 @@ ggplot(data = d_plot, aes(fill=`Label`, y=avg_value, x = DV)) +
 p1
 
 ggsave("liability.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+
+##======================================================
+##                    Covariates
+##======================================================
+
+## DV: Firm
+summary(lm(firm ~ label + gender, d))
+summary(lm(firm ~ label + as.factor(ethnicity), d))
+summary(lm(firm ~ label + education, d))
+summary(lm(firm ~ label + ai_knowledge_1, d))
+summary(lm(firm ~ label + age, d))
+
+## DV: Human
+summary(lm(human ~ label + gender, d))
+summary(lm(human ~ label + as.factor(ethnicity), d))
+summary(lm(human ~ label + education, d))
+summary(lm(human ~ label + ai_knowledge_1, d))
+summary(lm(human ~ label + age, d))
+
+

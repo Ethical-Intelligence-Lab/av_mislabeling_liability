@@ -320,4 +320,27 @@ d  |>
 
 ggsave("time_density.pdf", device = "pdf",width = 5.3, height = 3.7, units = "in")
 
+##==================================================
+#                     Covariate Check
+##==================================================
 
+# DV: capability
+summary(lm(capability ~ label + age, d))
+
+summary(lm(capability ~ label + gender, d))
+
+summary(lm(capability ~ label + ai_knowledge, d))
+
+# DV: behavior
+summary(lm(behavior ~ label + age, d))
+
+summary(lm(behavior ~ label + ai_knowledge, d))
+
+summary(lm(behavior ~ label + gender, d))
+
+# DV: time_control
+summary(lm(time_control ~ label + age, d))
+
+summary(lm(time_control ~ label + ai_knowledge, d))
+
+summary(lm(time_control ~ label + gender, d))

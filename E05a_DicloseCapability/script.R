@@ -369,3 +369,36 @@ ggarrange(p4 + rremove("ylab") + rremove("xlab"),
     bottom = textGrob("Disclosure Condition", gp = gpar(cex = .8, fontface="bold")))
 
 ggsave("disclosure_condition.jpg", device = "jpg",width = 5.3, height = 3.7, units = "in")
+
+
+## ===============================================================================
+##                              COVARIATES                
+## ===============================================================================
+
+## DV: Firm
+summary(lm(firm ~ label + age, d_merged))
+summary(lm(firm ~ label + gender, d_merged))
+summary(lm(firm ~ label + ai_knowledge_1, d_merged))
+summary(lm(firm ~ label + license, d_merged))
+summary(lm(firm ~ label + education, d_merged))
+
+summary(lm(firm ~ disclosure + age, d_merged))
+summary(lm(firm ~ disclosure + gender, d_merged))
+summary(lm(firm ~ disclosure + ai_knowledge_1, d_merged))
+summary(lm(firm ~ disclosure + license, d_merged))
+summary(lm(firm ~ disclosure + education, d_merged))
+
+
+
+## DV: Human
+summary(lm(human ~ label + age, d_merged))
+summary(lm(human ~ label + gender, d_merged))
+summary(lm(human ~ label + ai_knowledge_1, d_merged))
+summary(lm(human ~ label + license, d_merged))
+summary(lm(human ~ label + education, d_merged))
+
+summary(lm(human ~ disclosure + age, d_merged))
+summary(lm(human ~ disclosure + gender, d_merged))
+summary(lm(human ~ disclosure + ai_knowledge_1, d_merged))
+summary(lm(human ~ disclosure + license, d_merged))
+summary(lm(human ~ disclosure + education, d_merged))

@@ -312,6 +312,24 @@ p1
 
 ggsave("liability_ascriptions.png", device = "png",width = 5.3, height = 3.7, units = "in")
 
+## ==================================================================================
+##                                Covariate Checks             
+## ==================================================================================
+
+## DV: Firm
+summary(lm(firm ~ cond + gender, d_merged))
+summary(lm(firm ~ cond + as.factor(ethnicity), d_merged))
+summary(lm(firm ~ cond + education, d_merged))
+summary(lm(firm ~ cond + ai_knowledge_1, d_merged))
+summary(lm(firm ~ cond + age, d_merged))
+
+## DV: Human
+summary(lm(human ~ cond + gender, d_merged))
+summary(lm(human ~ cond + as.factor(ethnicity), d_merged))
+summary(lm(human ~ cond + education, d_merged))
+summary(lm(human ~ cond + ai_knowledge_1, d_merged))
+summary(lm(human ~ cond + age, d_merged))
+
 ## ================================================================================================================
 ##                                                  END OF ANALYSIS                 
 ## ================================================================================================================
