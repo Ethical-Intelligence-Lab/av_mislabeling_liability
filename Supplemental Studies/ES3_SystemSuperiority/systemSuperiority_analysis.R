@@ -57,6 +57,8 @@ d |>
 d |>
   filter(att_1 == 2 & att_2 == 5) -> d
 
+n_original <- dim(d)[1]; n_original
+
 ## Comp Check
 d |>
   filter(comp_1 == 2 & comp_2 == 4 & comp_3 == 1) -> d
@@ -64,7 +66,7 @@ d |>
 d |>
   filter(comp_4 == 1 | is.na(comp_4)) -> d
 
-nrow(d) # Final Sample
+n_final <- nrow(d); n_final
 
 ## ================================================================================================================
 ##                                            PARTICIPANT CHARACTERISTICS                 

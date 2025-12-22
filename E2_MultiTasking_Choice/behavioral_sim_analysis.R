@@ -14,8 +14,10 @@ pacman::p_load('tidyverse',
                'psych',
                'ggplot',
                'ggpubr',
-               'sjstats')
+               'sjstats',
+               'effsize')
 
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 file <- "AV_Culpability_E18_Behavior_MultiTasking_Notifs_Stage1_Full.csv"
 df <- read_csv(file)
 
@@ -90,9 +92,7 @@ sd(df$auto_1)
 mean(df$co_1)
 sd(df$co_1)
 
-d <- df$auto_1 - df$co_1
-cohens_d <- mean(d, na.rm = TRUE) / sd(d, na.rm = TRUE)
-cohens_d
+cohen.d(df$auto_1, df$co_1)
 
 # -----------------------------------------------------------------------------
 # BINOMIAL TEST FOR POOLED ADAS CHOICE

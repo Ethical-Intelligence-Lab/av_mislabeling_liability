@@ -8,7 +8,8 @@ pacman::p_load('tidyverse',
                'knitr',       
                'wordcloud2',
                'tidytext',
-               'tm'
+               'tm', 
+               'effsize'
 )
 
 # Read full dataset
@@ -120,9 +121,16 @@ t.test(df[df$found,]$auto_level, df[!df$found,]$auto_level)
 sd(df[df$found,]$auto_level)
 sd(df[!df$found,]$auto_level)
 
+cohen.d(df[df$found,]$auto_level,
+        df[!df$found,]$auto_level)
+
+
 ## Difficulty == 50? 
 t.test(df[!is.na(df$difficulty),]$difficulty , mu = 50)
 sd(df[!is.na(df$difficulty),]$difficulty)
+
+cohen.d(df[!is.na(df$difficulty),]$difficulty,
+        rep(50, length(df[!is.na(df$difficulty),]$difficulty)))
 
 ## Difficulty correlation with automation level
 cor.test(df[!is.na(df$difficulty),]$difficulty, df[!is.na(df$difficulty),]$auto_level)

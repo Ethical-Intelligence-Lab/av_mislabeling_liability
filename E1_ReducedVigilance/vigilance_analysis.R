@@ -27,8 +27,7 @@ pacman::p_load('ggsignif',
                'semTools'
 )
 
-mediation <- FALSE
-if(mediation) source('../process.r')
+mediation <- TRUE
 
 ## ================================================================================================================
 ##                                Exclusions and Pre-processing               
@@ -37,6 +36,7 @@ if(mediation) source('../process.r')
 # Read full dataset
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 d_raw <- read.csv("data.csv")
+if(mediation) source('../process.r')
 # Remove first two rows that were headers
 d_raw <- d_raw[-c(1,2),]
 
@@ -78,6 +78,7 @@ d <- cbind(d_raw[,20:24], d_subset, d_raw[,36:56])
 d$ss <- 1:dim(d)[1]
 
 # Replace NA in TimeVehicleStopped with 19.36
+d$TimeVehicleStopped <- as.numeric(d$TimeVehicleStopped)
 d$TimeVehicleStopped <- ifelse(is.na(d$TimeVehicleStopped), 19.36, d$TimeVehicleStopped)
 
 
@@ -97,10 +98,6 @@ intention_cols <- c("control", "handsOff", "watch", "nap")
 d[intention_cols] <- lapply(d[intention_cols], function(x) as.numeric(as.character(x)))
 d$intentions <- rowMeans(d[intention_cols], na.rm = TRUE)
 
-# FOR PROCESS
-d_process <- d
-d_process$cond <- as.numeric(as.factor(d_process$cond))
-
 ## Number Excluded
 n_recruited - n_final
 
@@ -119,7 +116,7 @@ cronbach.alpha(d[, c("control", "handsOff", "watch", "nap")])
 cronbach.alpha(d[, c("unsafe_self_10", "worried_self_10", "unsafe_others_10", "worried_others_10", 
                      "likely_others_10", "likely_self_10", "concern_others_10", "concern_self_10")])
 
-# Perceived Automation Level
+## Perceived Automation Level
 t0 <- t.test(d[d$cond == "auto",]$capability, 
              d[d$cond == "co",]$capability)
 t0
@@ -129,7 +126,7 @@ sd(d[d$cond == "co",]$capability)
 
 cohen.d(d[d$cond == "auto",]$capability, d[d$cond == "co",]$capability)
 
-# Distracted Intentions
+## Distracted Intentions
 t1 <- t.test(d[d$cond == "auto",]$intentions, d[d$cond == "co",]$intentions, paired = FALSE)
 t1
 
@@ -142,31 +139,34 @@ cohen.d(d[d$cond == "auto",]$intentions, d[d$cond == "co",]$intentions)
 intention_mod <- lm(intentions ~ cond + risk_aversion + ai_knowledge_1, data = d)
 summary(intention_mod)
 
+## mediation analysis
+d$cond_num <- ifelse(d$cond=="auto", 1, 2)
+d$ai_knowledge_1 <- as.numeric(d$ai_knowledge_1)
+
 ## Simple Mediation
-if(mediation) process(data = d_process, y = "behavior", x = "label", 
+if(mediation) process(data = d, y = "intentions", x = "cond_num", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (Risk Aversion) 
-if(mediation) process(data = d_process, y = "behavior", x = "label", w = c("risk_aversion"),
+if(mediation) process(data = d, y = "intentions", x = "cond_num", w = c("risk_aversion"),
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (AI Knowledge) 
-if(mediation) process(data = d_process, y = "behavior", x = "label", w = "ai_knowledge",
+if(mediation) process(data = d, y = "intentions", x = "cond_num", w = "ai_knowledge_1",
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 
-# Time to Take Control
-d$TimeVehicleStopped <- as.numeric(d$TimeVehicleStopped)
+## Time to Take Control
 t2 <- t.test(d[d$cond == "auto",]$TimeVehicleStopped, d[d$cond == "co",]$TimeVehicleStopped, paired = FALSE)
 t2
 
 sd(d[d$cond == "auto",]$TimeVehicleStopped)
 sd(d[d$cond == "co",]$TimeVehicleStopped)
 
-cohen.d(d[d$cond == "auto",]$TimeVehicleStopped, d[d$cond == "co",]$TimeVehicleStopped)
+cohen.d(d[d$cond == "auto",]$TimeVehicleStopped, d[d$cond == "co",]$TimeVehicleStopped, na.rm=TRUE)
 
 #control for risk aversion and av knowledge
 rt_mod <- lm(TimeVehicleStopped ~ cond + risk_aversion + ai_knowledge_1, data = d)
@@ -174,23 +174,23 @@ summary(rt_mod)
 
 
 ## Simple Mediation
-if(mediation) process(data = d_process, y = "time_control", x = "label", 
+if(mediation) process(data = d, y = "TimeVehicleStopped", x = "cond_num", 
         m =c("capability"), model = 4, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (Risk Aversion) 
-if(mediation) process(data = d_process, y = "time_control", x = "label", w = c("risk_aversion"),
+if(mediation) process(data = d, y = "TimeVehicleStopped", x = "cond_num", w = "risk_aversion",
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Moderated Mediation (AI Knowledge) 
-if(mediation) process(data = d_process, y = "time_control", x = "label", w = "ai_knowledge",
+if(mediation) process(data = d, y = "TimeVehicleStopped", x = "cond_num", w = "ai_knowledge_1",
         m =c("capability"), model = 14, effsize = 1, total = 1, stand = 1, 
         contrast =1, boot = 10000 , modelbt = 1, seed = 654321)
 
 ## Distribution of Time to Take Control
 ## Kolmogorov-Smirnov 
-ks.test(d[d$label == "auto",]$time_control, d[d$label == "co",]$time_control)
+ks.test(d[d$cond == "auto",]$TimeVehicleStopped, d[d$cond == "co",]$TimeVehicleStopped)
 
 ## ================================================================================================================
 ##                                VISUALIZATION               

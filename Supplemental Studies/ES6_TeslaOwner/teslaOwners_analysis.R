@@ -73,9 +73,13 @@ sum(d$automation > 2)/(length(d$automation))
 t.test(d$automation, mu = 2)
 sd(d$automation)
 
+cohen.d(d$automation, rep(2, length(d$automation)))
+
 ## Aware of Autopilot
 t.test(d[d$aware == 2, ]$automation,
        d[d$aware == 3, ]$automation)
+
+cohen.d(d[d$aware == 2, ]$automation, d[d$aware == 3, ]$automation)
 
 ## Used Autopilot
 t.test(d[d$used == 2, ]$automation,
